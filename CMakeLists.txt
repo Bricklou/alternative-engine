@@ -14,13 +14,28 @@ project(alternative-engine
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+include(cmake/glslvalidator.cmake)
+
+# ====================
+# Find Dependencies
+# ====================
+find_package(Vulkan REQUIRED)
+add_subdirectory(third_party)
 
 # ====================
 # Files and executable
 # ====================
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/engine/application/App.cpp src/engine/application/App.h
 )
+
+# ====================
+# Linking
+# ====================
+target_link_libraries(${PROJECT_NAME} vk-bootstrap::vk-bootstrap VulkanMemoryAllocator glm imgui stb_image)
+target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan SDL2)
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
 
 # ====================
 # Build options

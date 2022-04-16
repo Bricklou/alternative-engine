@@ -1,6 +1,11 @@
-#include <iostream>
+#include "engine/application/App.h"
 
 int main() {
-  std::cout << "Hello, World!" << std::endl;
+  AltE::App app{};
+
+  app.init();
+  app.run();
+  app.cleanup();
+
   return 0;
 }
