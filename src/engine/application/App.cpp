@@ -68,6 +68,8 @@ namespace AltE {
 
     SDL_Event e;
     bool bQuit = false;
+    bool isFullScreen = false;
+    SDL_DisplayMode oldDisplayMode;
 
     // main loop
     while (!bQuit) {
@@ -77,8 +79,36 @@ namespace AltE {
         if (e.type == SDL_QUIT) {
           spdlog::default_logger()->debug("Received close event");
           bQuit = true;
+        } else if (e.type == SDL_KEYDOWN) {
+          if (e.key.keysym.sym == SDLK_F11) {
+            // if not in fullscreen, save window size
+            if (!isFullScreen) {
+              SDL_GetWindowDisplayMode(_window, &oldDisplayMode);
+
+              // if F11+SHIFT => borderless window
+              if (e.key.keysym.mod == KMOD_LCTRL) {
+                SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                spdlog::default_logger()->debug(
+                    "Changed window to borderless fullscreen mode");
+
+              } else {
+                SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
+                spdlog::default_logger()->debug(
+                    "Changed window to fullscreen mode");
+              }
+              isFullScreen = true;
+            } else {
+              SDL_SetWindowFullscreen(_window, SDL_FALSE);
+              SDL_SetWindowDisplayMode(_window, &oldDisplayMode);
+              spdlog::default_logger()->debug(
+                  "Changed window to windowed mode");
+              isFullScreen = false;
+            }
+          }
         }
       }
+
+      draw();
     }
   }
 
