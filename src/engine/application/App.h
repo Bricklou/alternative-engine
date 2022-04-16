@@ -31,7 +31,24 @@ namespace AltE {
       VkDevice _device;
       VkSurfaceKHR _surface;
 
+      VkSwapchainKHR _swapchain;
+
+      // image format expected by the windowing system
+      VkFormat _swapchainImageFormat;
+
+      // array of images from the swapchain
+      std::vector<VkImage> _swapchainImages;
+
+      // array of image-views from the swapchain
+      std::vector<VkImageView> _swapchainImageViews;
+
       void init_logger();
+      static inline VKAPI_ATTR VkBool32 configure_logger(
+          VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+          VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+          const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+          void *pUserData);
       void init_vulkan();
+      void init_swapchain();
   };
 } // namespace AltE
