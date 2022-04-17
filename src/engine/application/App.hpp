@@ -22,7 +22,7 @@ namespace AltE {
 
     private:
       bool _isInitialized = false;
-      bool _frameBuffer = 0;
+      int _frameNumber = 0;
 
       VkExtent2D _windowExtent{1280, 720};
       struct SDL_Window *_window = nullptr;
@@ -56,6 +56,9 @@ namespace AltE {
       VkRenderPass _renderPass;
       std::vector<VkFramebuffer> _framebuffers;
 
+      VkSemaphore _presentSemaphore, _renderSemaphore;
+      VkFence _renderFence;
+
       void init_logger();
       static inline VKAPI_ATTR VkBool32 configure_logger(
           VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -67,5 +70,6 @@ namespace AltE {
       void init_commands();
       void init_default_renderpass();
       void init_framebuffers();
+      void init_sync_structures();
   };
 } // namespace AltE

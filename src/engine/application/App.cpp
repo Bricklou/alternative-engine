@@ -43,14 +43,26 @@ namespace AltE {
     init_default_renderpass();
     // create the framebuffers
     init_framebuffers();
+    // create the render semaphores
+    init_sync_structures();
 
     // everthing went fine
     _isInitialized = true;
+    spdlog::default_logger()->info("App initialized");
   }
 
   void App::cleanup() {
     if (_isInitialized) {
+      // make sure the gpu has stopped doing its things
+      vkDeviceWaitIdle(_device);
+
       vkDestroyCommandPool(_device, _commandPool, nullptr);
+
+      // destroy sync objects
+      vkDestroyFence(_device, _renderFence, nullptr);
+      vkDestroySemaphore(_device, _renderSemaphore, nullptr);
+      vkDestroySemaphore(_device, _presentSemaphore, nullptr);
+
       vkDestroySwapchainKHR(_device, _swapchain, nullptr);
 
       // destroy the main render pass
@@ -62,17 +74,126 @@ namespace AltE {
 
         vkDestroyImageView(_device, _swapchainImageViews[i], nullptr);
       }
-      vkDestroyDevice(_device, nullptr);
+
       vkDestroySurfaceKHR(_instance, _surface, nullptr);
+
+      vkDestroyDevice(_device, nullptr);
       vkb::destroy_debug_utils_messenger(_instance, _debug_messenger);
       vkDestroyInstance(_instance, nullptr);
+
       SDL_DestroyWindow(_window);
     }
     spdlog::default_logger()->debug("Engine closed");
   }
 
   void App::draw() {
-    // nothing yet
+    // wait until the GPU has finished rendering the last frame. Timeout of 1
+    // second
+    VK_CHECK(vkWaitForFences(_device, 1, &_renderFence, true, 1000000000));
+    VK_CHECK(vkResetFences(_device, 1, &_renderFence));
+
+    // request image from the swapchain, one second timeout
+    uint32_t swapchainImageIndex;
+    VK_CHECK(vkAcquireNextImageKHR(_device, _swapchain, 1000000000,
+                                   _presentSemaphore, nullptr,
+                                   &swapchainImageIndex));
+
+    // now that we are sure that the commands finished executing, we can safely
+    // reset the command buffer to begin recording again.
+    VK_CHECK(vkResetCommandBuffer(_mainCommandBuffer, 0));
+
+    // naming it cmd for shorter writing
+    VkCommandBuffer cmd = _mainCommandBuffer;
+
+    // begin the command buffer recording. We will use this command buffer
+    // exactly once, so we want to let Vulkan know that
+    VkCommandBufferBeginInfo cmdBeginInfo = {};
+    cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmdBeginInfo.pNext = nullptr;
+
+    cmdBeginInfo.pInheritanceInfo = nullptr;
+    cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+
+    // make a clear-color from frame number. This will flash wih a 120*pi frame
+    // period
+    VkClearValue clearValue;
+    float flash = abs(sin(_frameNumber / 120.f));
+    clearValue.color = {{0.f, 0.f, flash, 1.f}};
+
+    // start the main renderpass
+    // we will use the clear color from above, and the framebuffer of the index
+    // the swapchain gave us
+    VkRenderPassBeginInfo rpInfo = {};
+    rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    rpInfo.pNext = nullptr;
+
+    rpInfo.renderPass = _renderPass;
+    rpInfo.renderArea.offset.x = 0;
+    rpInfo.renderArea.offset.y = 0;
+    rpInfo.renderArea.extent = _windowExtent;
+    rpInfo.framebuffer = _framebuffers[swapchainImageIndex];
+
+    // connect clear values
+    rpInfo.clearValueCount = 1;
+    rpInfo.pClearValues = &clearValue;
+
+    vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    // finalize the render pass
+    vkCmdEndRenderPass(cmd);
+    // finalize the command buffer (we can no longer add commands, but it can
+    // now be executed)
+    VK_CHECK(vkEndCommandBuffer(cmd));
+
+    // prepare the submission to the queue
+    // we want to wait on the _presentSemaphore, as that semaphore is signaled
+    // when the swapchain is ready we will signal the _renderSemaphore, to
+    // signal that rendering has finished
+
+    VkSubmitInfo submit = {};
+    submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit.pNext = nullptr;
+
+    VkPipelineStageFlags waitStage =
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    submit.pWaitDstStageMask = &waitStage;
+
+    submit.waitSemaphoreCount = 1;
+    submit.pWaitSemaphores = &_presentSemaphore;
+
+    submit.signalSemaphoreCount = 1;
+    submit.pSignalSemaphores = &_renderSemaphore;
+
+    submit.commandBufferCount = 1;
+    submit.pCommandBuffers = &cmd;
+
+    // submit command buffer to the queue and execute it
+    // _renderFence will now block until the graphic commands finish execution
+    VK_CHECK(vkQueueSubmit(_graphicsQueue, 1, &submit, _renderFence));
+
+    // this will put the image we jsut rendered into the visible window
+    // we want to wait on the _renderSemaphore for that,
+    // as it's necessary that drawing commands have finished before the image is
+    // displayed to the user
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr;
+
+    presentInfo.pSwapchains = &_swapchain;
+    presentInfo.swapchainCount = 1;
+
+    presentInfo.pWaitSemaphores = &_renderSemaphore;
+    presentInfo.waitSemaphoreCount = 1;
+
+    presentInfo.pImageIndices = &swapchainImageIndex;
+
+    VK_CHECK(vkQueuePresentKHR(_graphicsQueue, &presentInfo));
+
+    // increase the number of frames drawn
+    _frameNumber++;
   }
 
   void App::run() {
@@ -130,6 +251,8 @@ namespace AltE {
       spdlog::set_default_logger(std::make_shared<spdlog::logger>(
           "AltE", spdlog::sinks_init_list{console_sink}));
       spdlog::default_logger()->set_level(spdlog::level::trace);
+      spdlog::default_logger()->set_pattern(
+          "\033[90m[%Y-%m-%d %T.%e]\033[m [\033[33m%n\033[m] [%^%=9l%$] %v");
     } catch (const spdlog::spdlog_ex &ex) {
       std::cerr << "Log initialization failed: " << ex.what() << std::endl;
       abort();
@@ -148,18 +271,23 @@ namespace AltE {
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
         spdlog::default_logger()->debug("[{}] {}", type,
                                         pCallbackData->pMessage);
+        break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
         spdlog::default_logger()->error("[{}] {}", type,
                                         pCallbackData->pMessage);
+        break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
         spdlog::default_logger()->warn("[{}] {}", type,
                                        pCallbackData->pMessage);
+        break;
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
         spdlog::default_logger()->info("[{}] {}", type,
                                        pCallbackData->pMessage);
+        break;
       default:
         spdlog::default_logger()->debug("[{}] {}", type,
                                         pCallbackData->pMessage);
+        break;
     }
 
     return VK_FALSE;
@@ -173,7 +301,6 @@ namespace AltE {
                         .request_validation_layers(true)
                         .require_api_version(1, 1, 0)
                         .set_debug_callback(App::configure_logger)
-                        .use_default_debug_messenger()
                         .build();
 
     vkb::Instance vkb_inst = inst_ret.value();
@@ -298,6 +425,8 @@ namespace AltE {
 
     VK_CHECK(
         vkCreateRenderPass(_device, &render_pass_info, nullptr, &_renderPass));
+
+    spdlog::default_logger()->debug("Renderpass initialized");
   }
 
   void App::init_framebuffers() {
@@ -323,5 +452,33 @@ namespace AltE {
       VK_CHECK(
           vkCreateFramebuffer(_device, &fb_info, nullptr, &_framebuffers[i]));
     }
+
+    spdlog::default_logger()->debug("Framebuffers initialized");
+  }
+
+  void App::init_sync_structures() {
+    // create synchronization structures
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.pNext = nullptr;
+
+    // we want to create the fence with the Create Signaled flag, so we cant
+    // wait on it before using it on a GPU command (for the first frame)
+    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_renderFence));
+
+    // for the semapgores, we don't need any flags
+    VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreCreateInfo.pNext = nullptr;
+    semaphoreCreateInfo.flags = 0;
+
+    VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr,
+                               &_presentSemaphore));
+    VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr,
+                               &_renderSemaphore));
+
+    spdlog::default_logger()->debug("Sync structures initialized");
   }
 } // namespace AltE
