@@ -124,7 +124,7 @@ VkPipelineLayoutCreateInfo vk_abstract::pipeline_layout_create_info() {
   info.pNext = nullptr;
 
   // empty defaults
-  info.flags;
+  info.flags = 0;
   info.setLayoutCount = 0;
   info.pSetLayouts = nullptr;
   info.pushConstantRangeCount = 0;
