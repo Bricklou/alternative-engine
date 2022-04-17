@@ -11,3 +11,4 @@ To-Do List:
 - [ ] Have a custom icon
 - [ ] Be able to switch between windowed, fullscreen and borderless
 - [ ] Shaders hot reloading ?
+- [x] Custom logger
