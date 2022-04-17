@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../rendering/DeletionQueue.hpp"
 #include "../rendering/vk_abstract.hpp"
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
@@ -24,6 +25,8 @@ namespace AltE {
       bool _isInitialized = false;
       int _frameNumber = 0;
       int _selectedShader = 0;
+
+      DeletionQueue _mainDeletionQueue;
 
       VkExtent2D _windowExtent{1280, 720};
       struct SDL_Window *_window = nullptr;

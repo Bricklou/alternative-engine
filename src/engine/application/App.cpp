@@ -60,24 +60,7 @@ namespace AltE {
       // make sure the gpu has stopped doing its things
       vkDeviceWaitIdle(_device);
 
-      vkDestroyCommandPool(_device, _commandPool, nullptr);
-
-      // destroy sync objects
-      vkDestroyFence(_device, _renderFence, nullptr);
-      vkDestroySemaphore(_device, _renderSemaphore, nullptr);
-      vkDestroySemaphore(_device, _presentSemaphore, nullptr);
-
-      vkDestroySwapchainKHR(_device, _swapchain, nullptr);
-
-      // destroy the main render pass
-      vkDestroyRenderPass(_device, _renderPass, nullptr);
-
-      // destroy swapchain resources
-      for (int i = 0; i < _swapchainImageViews.size(); i++) {
-        vkDestroyFramebuffer(_device, _framebuffers[i], nullptr);
-
-        vkDestroyImageView(_device, _swapchainImageViews[i], nullptr);
-      }
+      _mainDeletionQueue.flush();
 
       vkDestroySurfaceKHR(_instance, _surface, nullptr);
 
@@ -380,12 +363,15 @@ namespace AltE {
 
     _swapchainImageFormat = vkbSwapchain.image_format;
 
+    _mainDeletionQueue.push_function(
+        [this]() { vkDestroySwapchainKHR(_device, _swapchain, nullptr); });
+
     spdlog::default_logger()->debug("Swapchain initialized");
   }
 
   void App::init_commands() {
-    // create a command pool for commands submtted to the graphics queue
-    // we also want the pool to allow for resetting of in,dividual command
+    // create a command pool for commands submitted to the graphics queue.
+    // we also want the pool to allow for resetting of individual command
     // buffers
     VkCommandPoolCreateInfo commandPoolInfo =
         vk_abstract::command_pool_create_info(
@@ -401,6 +387,9 @@ namespace AltE {
 
     VK_CHECK(
         vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_mainCommandBuffer));
+
+    _mainDeletionQueue.push_function(
+        [this]() { vkDestroyCommandPool(_device, _commandPool, nullptr); });
   }
 
   void App::init_default_renderpass() {
@@ -450,6 +439,9 @@ namespace AltE {
     VK_CHECK(
         vkCreateRenderPass(_device, &render_pass_info, nullptr, &_renderPass));
 
+    _mainDeletionQueue.push_function(
+        [this]() { vkDestroyRenderPass(_device, _renderPass, nullptr); });
+
     spdlog::default_logger()->debug("Renderpass initialized");
   }
 
@@ -475,6 +467,11 @@ namespace AltE {
       fb_info.pAttachments = &_swapchainImageViews[i];
       VK_CHECK(
           vkCreateFramebuffer(_device, &fb_info, nullptr, &_framebuffers[i]));
+
+      _mainDeletionQueue.push_function([this, i]() {
+        vkDestroyFramebuffer(_device, _framebuffers[i], nullptr);
+        vkDestroyImageView(_device, _swapchainImageViews[i], nullptr);
+      });
     }
 
     spdlog::default_logger()->debug("Framebuffers initialized");
@@ -482,26 +479,29 @@ namespace AltE {
 
   void App::init_sync_structures() {
     // create synchronization structures
-    VkFenceCreateInfo fenceCreateInfo = {};
-    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceCreateInfo.pNext = nullptr;
-
-    // we want to create the fence with the Create Signaled flag, so we cant
-    // wait on it before using it on a GPU command (for the first frame)
-    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    VkFenceCreateInfo fenceCreateInfo =
+        vk_abstract::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
 
     VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_renderFence));
 
+    // enqueue the destruction of the fence
+    _mainDeletionQueue.push_function(
+        [this]() { vkDestroyFence(_device, _renderFence, nullptr); });
+
     // for the semapgores, we don't need any flags
-    VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semaphoreCreateInfo.pNext = nullptr;
-    semaphoreCreateInfo.flags = 0;
+    VkSemaphoreCreateInfo semaphoreCreateInfo =
+        vk_abstract::semaphore_create_info();
 
     VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr,
                                &_presentSemaphore));
     VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr,
                                &_renderSemaphore));
+
+    // enqueue the destruction of semaphores
+    _mainDeletionQueue.push_function([this]() {
+      vkDestroySemaphore(_device, _presentSemaphore, nullptr);
+      vkDestroySemaphore(_device, _renderSemaphore, nullptr);
+    });
 
     spdlog::default_logger()->debug("Sync structures initialized");
   }
@@ -626,5 +626,20 @@ namespace AltE {
 
     // build the red triangle pipeline
     _redTrianglePipeline = pipelineBuilder.build_pipeline(_device, _renderPass);
+
+    // destroy all shader modules, outside of the queue
+    vkDestroyShaderModule(_device, redTriangleVertexShader, nullptr);
+    vkDestroyShaderModule(_device, redTriangleFragShader, nullptr);
+    vkDestroyShaderModule(_device, triangleFragShader, nullptr);
+    vkDestroyShaderModule(_device, triangleVertexShader, nullptr);
+
+    _mainDeletionQueue.push_function([this]() {
+      // destroy the 2 pipelines we have created
+      vkDestroyPipeline(_device, _redTrianglePipeline, nullptr);
+      vkDestroyPipeline(_device, _trianglePipeline, nullptr);
+
+      // destroy the pipeline layout that they use
+      vkDestroyPipelineLayout(_device, _trianglePipelineLayout, nullptr);
+    });
   }
 } // namespace AltE
