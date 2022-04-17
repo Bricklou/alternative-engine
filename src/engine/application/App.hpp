@@ -53,6 +53,9 @@ namespace AltE {
       // the buffer we will record into
       VkCommandBuffer _mainCommandBuffer;
 
+      VkRenderPass _renderPass;
+      std::vector<VkFramebuffer> _framebuffers;
+
       void init_logger();
       static inline VKAPI_ATTR VkBool32 configure_logger(
           VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -62,5 +65,7 @@ namespace AltE {
       void init_vulkan();
       void init_swapchain();
       void init_commands();
+      void init_default_renderpass();
+      void init_framebuffers();
   };
 } // namespace AltE
