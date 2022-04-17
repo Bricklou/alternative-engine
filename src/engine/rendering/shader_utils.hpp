@@ -5,7 +5,7 @@
 #include <vulkan/vulkan.h>
 
 namespace shader_utils {
-  bool load_shader_module(VkDevice &device, const char *filePath,
+  bool load_shader_module(const VkDevice &device, const char *filePath,
                           VkShaderModule *outShaderModule) {
     // open the file. With cursor at the end
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);

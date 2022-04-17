@@ -31,6 +31,7 @@ add_executable(${PROJECT_NAME}
     src/engine/rendering/vk_abstract.hpp src/engine/rendering/vk_abstract.cpp
     src/engine/sdl_utils.hpp
     src/engine/rendering/shader_utils.hpp
+    src/engine/rendering/PipelineBuilder.hpp src/engine/rendering/PipelineBuilder.cpp
 )
 
 # ====================

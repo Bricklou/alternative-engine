@@ -59,6 +59,9 @@ namespace AltE {
       VkSemaphore _presentSemaphore, _renderSemaphore;
       VkFence _renderFence;
 
+      VkPipelineLayout _trianglePipelineLayout;
+      VkPipeline _trianglePipeline;
+
       void init_logger();
       static inline VKAPI_ATTR VkBool32 configure_logger(
           VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
