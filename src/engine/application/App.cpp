@@ -85,7 +85,7 @@ namespace AltE {
           if (e.key.keysym.sym == SDLK_F11) {
             if (!isFullScreen) {
               // if F11+SHIFT => borderless fullscreen
-              if (e.key.keysym.mod == KMOD_LCTRL) {
+              if (e.key.keysym.mod & KMOD_SHIFT) {
                 SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                 spdlog::default_logger()->debug(
                     "Changed window to borderless fullscreen mode");

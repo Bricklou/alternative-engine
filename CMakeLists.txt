@@ -29,6 +29,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/engine/application/App.cpp src/engine/application/App.hpp
     src/engine/vk_abstract.hpp src/engine/vk_abstract.cpp
+    src/engine/sdl_utils.hpp
 )
 
 # ====================
