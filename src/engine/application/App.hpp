@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../vk_abstract.hpp"
+#include "../rendering/vk_abstract.hpp"
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan.h>
@@ -71,5 +71,6 @@ namespace AltE {
       void init_default_renderpass();
       void init_framebuffers();
       void init_sync_structures();
+      void init_pipeline();
   };
 } // namespace AltE

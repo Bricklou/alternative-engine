@@ -1,4 +1,5 @@
 #include "App.hpp"
+#include "../rendering/shader_utils.hpp"
 #include <iostream>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
@@ -45,6 +46,8 @@ namespace AltE {
     init_framebuffers();
     // create the render semaphores
     init_sync_structures();
+    // create pipeline
+    init_pipeline();
 
     // everthing went fine
     _isInitialized = true;
@@ -480,5 +483,30 @@ namespace AltE {
                                &_renderSemaphore));
 
     spdlog::default_logger()->debug("Sync structures initialized");
+  }
+
+  void App::init_pipeline() {
+    VkShaderModule triangleFragShader;
+    VkShaderModule triangleVertexShader;
+
+    if (!shader_utils::load_shader_module(_device,
+                                          "../assets/shaders/triangle.frag.spv",
+                                          &triangleFragShader)) {
+      spdlog::default_logger()->error(
+          "Error when building the triangle fragment shader module");
+    } else {
+      spdlog::default_logger()->debug(
+          "Triangle fragment shader module successfully loaded");
+    }
+
+    if (!shader_utils::load_shader_module(_device,
+                                          "../assets/shaders/triangle.vert.spv",
+                                          &triangleVertexShader)) {
+      spdlog::default_logger()->error(
+          "Error when building the triangle vertex shader module");
+    } else {
+      spdlog::default_logger()->debug(
+          "Triangle vertex shader module successfully loaded");
+    }
   }
 } // namespace AltE
