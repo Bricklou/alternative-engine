@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../vk_abstract.hpp"
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan.h>
@@ -42,6 +43,16 @@ namespace AltE {
       // array of image-views from the swapchain
       std::vector<VkImageView> _swapchainImageViews;
 
+      // queue we will submit to
+      VkQueue _graphicsQueue;
+      // family of that queue
+      uint32_t _graphicsQueueFamily;
+
+      // the command pool for our commands
+      VkCommandPool _commandPool;
+      // the buffer we will record into
+      VkCommandBuffer _mainCommandBuffer;
+
       void init_logger();
       static inline VKAPI_ATTR VkBool32 configure_logger(
           VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -50,5 +61,6 @@ namespace AltE {
           void *pUserData);
       void init_vulkan();
       void init_swapchain();
+      void init_commands();
   };
 } // namespace AltE

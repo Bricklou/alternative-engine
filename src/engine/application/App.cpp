@@ -1,4 +1,4 @@
-#include "App.h"
+#include "App.hpp"
 #include <iostream>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
@@ -37,6 +37,8 @@ namespace AltE {
     init_vulkan();
     // create the swapchain
     init_swapchain();
+    // create the command pool
+    init_commands();
 
     // everthing went fine
     _isInitialized = true;
@@ -44,6 +46,7 @@ namespace AltE {
 
   void App::cleanup() {
     if (_isInitialized) {
+      vkDestroyCommandPool(_device, _commandPool, nullptr);
       vkDestroySwapchainKHR(_device, _swapchain, nullptr);
 
       // destroy swapchain resources
@@ -190,6 +193,11 @@ namespace AltE {
     _device = vkbDevice.device;
     _chosenGPU = physicalDevice.physical_device;
 
+    // use vkboostrap to get a Graphics Queue
+    _graphicsQueue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
+    _graphicsQueueFamily =
+        vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+
     spdlog::default_logger()->debug("Vulkan initialized");
   }
 
@@ -213,5 +221,25 @@ namespace AltE {
     _swapchainImageFormat = vkbSwapchain.image_format;
 
     spdlog::default_logger()->debug("Swapchain initialized");
+  }
+
+  void App::init_commands() {
+    // create a command pool for commands submtted to the graphics queue
+    // we also want the pool to allow for resetting of in,dividual command
+    // buffers
+    VkCommandPoolCreateInfo commandPoolInfo =
+        vk_abstract::command_pool_create_info(
+            _graphicsQueueFamily,
+            VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
+    VK_CHECK(
+        vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_commandPool));
+
+    // allocate the default command buffer that we will use for rendering
+    VkCommandBufferAllocateInfo cmdAllocInfo =
+        vk_abstract::command_buffer_allocate_info(_commandPool, 1);
+
+    VK_CHECK(
+        vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_mainCommandBuffer));
   }
 } // namespace AltE

@@ -1,4 +1,4 @@
-#include "engine/application/App.h"
+#include "engine/application/App.hpp"
 
 int main() {
   AltE::App app{};
