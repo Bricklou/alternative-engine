@@ -91,6 +91,10 @@ namespace AltE {
   }
 
   void App::draw() {
+    // check if window is minimized and skip drawing
+    if (SDL_GetWindowFlags(_window) & SDL_WINDOW_MINIMIZED)
+      return;
+
     // wait until the GPU has finished rendering the last frame. Timeout of 1
     // second
     VK_CHECK(vkWaitForFences(_device, 1, &_renderFence, true, 1000000000));
@@ -145,8 +149,15 @@ namespace AltE {
 
     vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    // once we start addind rendering commands, they will go here
-    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _trianglePipeline);
+    // once we start adding rendering commands, they will go here
+    if (_selectedShader == 0) {
+      vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                        _trianglePipeline);
+    } else {
+      vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                        _redTrianglePipeline);
+    }
+
     vkCmdDraw(cmd, 3, 1, 0, 0);
 
     // finalize the render pass
@@ -242,6 +253,11 @@ namespace AltE {
               spdlog::default_logger()->debug(
                   "Changed window to windowed mode");
               isFullScreen = false;
+            }
+          } else if (e.key.keysym.sym == SDLK_SPACE) {
+            _selectedShader += 1;
+            if (_selectedShader > 1) {
+              _selectedShader = 0;
             }
           }
         }
@@ -491,12 +507,11 @@ namespace AltE {
   }
 
   void App::init_pipeline() {
-    VkShaderModule triangleFragShader;
-    VkShaderModule triangleVertexShader;
 
-    if (!shader_utils::load_shader_module(_device,
-                                          "../assets/shaders/triangle.frag.spv",
-                                          &triangleFragShader)) {
+    VkShaderModule triangleFragShader;
+    if (!shader_utils::load_shader_module(
+            _device, "../assets/shaders/colored_triangle.frag.spv",
+            &triangleFragShader)) {
       spdlog::default_logger()->error(
           "Error when building the triangle fragment shader module");
     } else {
@@ -504,14 +519,37 @@ namespace AltE {
           "Triangle fragment shader module successfully loaded");
     }
 
-    if (!shader_utils::load_shader_module(_device,
-                                          "../assets/shaders/triangle.vert.spv",
-                                          &triangleVertexShader)) {
+    VkShaderModule triangleVertexShader;
+    if (!shader_utils::load_shader_module(
+            _device, "../assets/shaders/colored_triangle.vert.spv",
+            &triangleVertexShader)) {
       spdlog::default_logger()->error(
           "Error when building the triangle vertex shader module");
     } else {
       spdlog::default_logger()->debug(
           "Triangle vertex shader module successfully loaded");
+    }
+
+    VkShaderModule redTriangleVertexShader;
+    if (!shader_utils::load_shader_module(_device,
+                                          "../assets/shaders/triangle.vert.spv",
+                                          &redTriangleVertexShader)) {
+      spdlog::default_logger()->error(
+          "Error when building the red triangle vertex shader module");
+    } else {
+      spdlog::default_logger()->debug(
+          "Red triangle vertex shader module successfully loaded");
+    }
+
+    VkShaderModule redTriangleFragShader;
+    if (!shader_utils::load_shader_module(_device,
+                                          "../assets/shaders/triangle.frag.spv",
+                                          &redTriangleFragShader)) {
+      spdlog::default_logger()->error(
+          "Error when building the red triangle fragment shader module");
+    } else {
+      spdlog::default_logger()->debug(
+          "Red triangle fragment shader module successfully loaded");
     }
 
     // build the pipeline layout that controls the inputs/outputs of the shader
@@ -573,5 +611,20 @@ namespace AltE {
 
     // finally build the pipeline
     _trianglePipeline = pipelineBuilder.build_pipeline(_device, _renderPass);
+
+    // clear the shader stages for the builder
+    pipelineBuilder._shaderStages.clear();
+
+    // add the other shaders
+    pipelineBuilder._shaderStages.push_back(
+        vk_abstract::pipeline_shader_stage_create_info(
+            VK_SHADER_STAGE_VERTEX_BIT, redTriangleVertexShader));
+
+    pipelineBuilder._shaderStages.push_back(
+        vk_abstract::pipeline_shader_stage_create_info(
+            VK_SHADER_STAGE_FRAGMENT_BIT, redTriangleFragShader));
+
+    // build the red triangle pipeline
+    _redTrianglePipeline = pipelineBuilder.build_pipeline(_device, _renderPass);
   }
 } // namespace AltE

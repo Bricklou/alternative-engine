@@ -23,6 +23,7 @@ namespace AltE {
     private:
       bool _isInitialized = false;
       int _frameNumber = 0;
+      int _selectedShader = 0;
 
       VkExtent2D _windowExtent{1280, 720};
       struct SDL_Window *_window = nullptr;
@@ -61,6 +62,7 @@ namespace AltE {
 
       VkPipelineLayout _trianglePipelineLayout;
       VkPipeline _trianglePipeline;
+      VkPipeline _redTrianglePipeline;
 
       void init_logger();
       static inline VKAPI_ATTR VkBool32 configure_logger(
