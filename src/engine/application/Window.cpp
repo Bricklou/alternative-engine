@@ -1,7 +1,7 @@
 #include "Window.hpp"
 #include <SDL2/SDL_vulkan.h>
 
-namespace AltE {
+namespace AltE::Application {
   Window::Window(const std::string &title, uint32_t width, uint32_t height)
       : _title{title} {
     _windowExtent = {width, height};
@@ -67,4 +67,4 @@ namespace AltE {
     SDL_Vulkan_CreateSurface(_window, instance, surface);
   }
 
-} // namespace AltE
+} // namespace AltE::Application

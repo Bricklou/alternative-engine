@@ -4,7 +4,7 @@
 #include <string>
 #include <vulkan/vulkan.h>
 
-namespace AltE {
+namespace AltE::Application {
 
   class Window {
     public:
@@ -42,4 +42,4 @@ namespace AltE {
 
       struct SDL_Window *_window = nullptr;
   };
-} // namespace AltE
+} // namespace AltE::Application

@@ -1,14 +1,16 @@
 #include "App.hpp"
+#include "rendering/Renderer.hpp"
 
 namespace AltE {
   App::App() { init(); }
 
   void App::init() {
-    Logger::createLogger("Alternative-Engine");
+    Core::Logger::createLogger("Alternative-Engine");
 
     spdlog::debug("Logger initialized");
 
-    _window = std::make_unique<Window>("Alternative-Engine", 800, 600);
+    _window =
+        std::make_unique<Application::Window>("Alternative-Engine", 800, 600);
 
     _renderThread = std::thread(&App::runRenderLoop, this);
   }
@@ -16,6 +18,8 @@ namespace AltE {
   App::~App() { cleanup(); }
 
   void App::run() {
+    using namespace Application;
+
     SDL_Event event;
 
     while (!this->_should_close) {
@@ -39,7 +43,11 @@ namespace AltE {
   void App::cleanup() {}
 
   void App::runRenderLoop() {
+    std::unique_ptr<Rendering::Renderer> renderer =
+        std::make_unique<Rendering::Renderer>();
+
     while (!this->_should_close) {
+      renderer->render();
     }
   }
 

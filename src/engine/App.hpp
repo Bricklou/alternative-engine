@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../core/logger.hpp"
-#include "Window.hpp"
+#include "application/Window.hpp"
+#include "core/logger.hpp"
 #include <atomic>
 #include <thread>
 
@@ -15,7 +15,7 @@ namespace AltE {
 
     private:
       std::thread _renderThread;
-      std::unique_ptr<Window> _window;
+      std::unique_ptr<Application::Window> _window;
 
       void init();
       void runRenderLoop();

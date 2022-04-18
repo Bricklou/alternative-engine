@@ -12,6 +12,7 @@ project(alternative-engine
 # CMake Configuration
 # ====================
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 include(cmake/glslvalidator.cmake)
@@ -27,7 +28,7 @@ add_subdirectory(third_party)
 # ====================
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    src/engine/application/App.hpp src/engine/application/App.cpp
+    src/engine/App.hpp src/engine/App.cpp
     src/engine/application/Window.hpp src/engine/application/Window.cpp
     src/engine/core/logger.hpp src/engine/core/logger.cpp
 )

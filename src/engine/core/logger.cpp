@@ -1,6 +1,6 @@
 #include "logger.hpp"
 
-namespace AltE::Logger {
+namespace AltE::Core::Logger {
   void createLogger(const std::string &name) {
     // Create console logger sink
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -20,4 +20,4 @@ namespace AltE::Logger {
         "\033[90m[%Y-%m-%d %T.%e] [thread %t]\033[m [\033[33m%n\033[m] "
         "[%^%=9l%$] %v");
   }
-} // namespace AltE::Logger
+} // namespace AltE::Core::Logger
