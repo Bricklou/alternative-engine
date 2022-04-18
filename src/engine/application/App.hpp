@@ -1,6 +1,8 @@
 #pragma once
 
+#include "../core/logger.hpp"
 #include "Window.hpp"
+#include <atomic>
 #include <thread>
 
 namespace AltE {
@@ -12,8 +14,13 @@ namespace AltE {
       void run();
 
     private:
-      std::thread _gameLogicThread;
       std::thread _renderThread;
       std::unique_ptr<Window> _window;
+
+      void init();
+      void runRenderLoop();
+      void cleanup();
+
+      std::atomic<bool> _should_close{false};
   };
 } // namespace AltE

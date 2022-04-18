@@ -1,5 +1,6 @@
 To-Do List:
 
+- [x] Show a window
 - [ ] Setup Vulkan rendering
 - [ ] Render planes
 - [ ] Draw image in 2D space
@@ -11,5 +12,5 @@ To-Do List:
 - [ ] Have a custom icon
 - [ ] Be able to switch between windowed, fullscreen and borderless
 - [ ] Shaders/others files hot reloading ?
-- [ ] Custom logger
+- [x] Custom logger
 - [ ] Generate a texture Altas to optimize texture loading

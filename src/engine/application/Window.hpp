@@ -19,6 +19,9 @@ namespace AltE {
       Window(const std::string &title, uint32_t width, uint32_t height);
       ~Window();
 
+      Window(const Window &) = delete;
+      Window &operator=(const Window &) = delete;
+
       void show();
       void minimize();
 
@@ -29,8 +32,13 @@ namespace AltE {
 
       SDL_Window *get_sdl_window() const { return _window; }
 
+      void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
+
+      VkExtent2D getExtent() const { return _windowExtent; }
+
     private:
       VkExtent2D _windowExtent;
+      std::string _title;
 
       struct SDL_Window *_window = nullptr;
   };
