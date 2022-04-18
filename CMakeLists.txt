@@ -27,6 +27,9 @@ add_subdirectory(third_party)
 # ====================
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/engine/application/App.hpp src/engine/application/App.cpp
+    src/engine/application/Window.hpp src/engine/application/Window.cpp
+    src/engine/core/logger.hpp src/engine/core/logger.cpp
 )
 
 # ====================

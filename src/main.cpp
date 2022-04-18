@@ -1,7 +1,14 @@
+#include "engine/application/App.hpp"
 #include <iostream>
 
 int main() {
-  std::cout << "Hello world" << std::endl;
+  AltE::App app{};
+
+  try {
+    app.run();
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << std::endl;
+  }
 
   return 0;
 }
