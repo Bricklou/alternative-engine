@@ -36,6 +36,8 @@ add_executable(${PROJECT_NAME}
     src/engine/rendering/DeletionQueue.hpp
     src/engine/rendering/vulkan/vk_abstract.hpp src/engine/rendering/vulkan/vk_abstract.cpp
     src/engine/rendering/vulkan/SwapChain.hpp src/engine/rendering/vulkan/SwapChain.cpp
+    src/engine/rendering/vulkan/Pipeline.hpp src/engine/rendering/vulkan/Pipeline.cpp
+    src/engine/rendering/vulkan/Descriptors.hpp src/engine/rendering/vulkan/Descriptors.cpp
 )
 
 # ====================
