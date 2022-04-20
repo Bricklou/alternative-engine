@@ -44,11 +44,10 @@ namespace AltE {
 
   void App::runRenderLoop() {
     std::unique_ptr<Rendering::Renderer> renderer =
-        std::make_unique<Rendering::Renderer>();
+        std::make_unique<Rendering::Renderer>(_window.get());
 
     while (!this->_should_close) {
       renderer->render();
     }
   }
-
 } // namespace AltE

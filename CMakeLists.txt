@@ -31,6 +31,11 @@ add_executable(${PROJECT_NAME}
     src/engine/App.hpp src/engine/App.cpp
     src/engine/application/Window.hpp src/engine/application/Window.cpp
     src/engine/core/logger.hpp src/engine/core/logger.cpp
+    src/engine/rendering/Renderer.hpp src/engine/rendering/Renderer.cpp
+    src/engine/rendering/vulkan/Device.hpp src/engine/rendering/vulkan/Device.cpp
+    src/engine/rendering/DeletionQueue.hpp
+    src/engine/rendering/vulkan/vk_abstract.hpp src/engine/rendering/vulkan/vk_abstract.cpp
+    src/engine/rendering/vulkan/SwapChain.hpp src/engine/rendering/vulkan/SwapChain.cpp
 )
 
 # ====================
