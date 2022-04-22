@@ -22,3 +22,8 @@ find_package(ImGui REQUIRED)
 
 # spdlog
 add_subdirectory(spdlog)
+
+# vulkan-hpp
+set ( SAMPLES_BUILD OFF CACHE INTERNAL "Build the vulkan hpp samples" )
+set ( VULKAN_HPP_INSTALL OFF CACHE INTERNAL "Install vulkan hpp" )
+add_subdirectory(Vulkan-Hpp/Vulkan-Headers)

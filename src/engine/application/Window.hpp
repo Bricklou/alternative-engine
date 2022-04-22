@@ -2,7 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <string>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 namespace AltE::Application {
 
@@ -16,28 +16,29 @@ namespace AltE::Application {
         BorderlessFullscreen
       };
 
-      Window(const std::string &title, uint32_t width, uint32_t height);
+      Window(const std::string &title, int width, int height);
       ~Window();
 
       Window(const Window &) = delete;
       Window &operator=(const Window &) = delete;
 
       void show();
+      void hide();
       void minimize();
 
       void set_fullscreen(bool state);
       void set_borderless_fullscreen(bool state);
 
-      WindowState get_state() const;
+      [[nodiscard]] WindowState get_state() const;
 
-      SDL_Window *get_sdl_window() const { return _window; }
+      [[nodiscard]] SDL_Window *get_sdl_window() const { return _window; }
 
-      void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
+      void createWindowSurface(vk::Instance instance, VkSurfaceKHR *surface);
 
-      VkExtent2D getExtent() const { return _windowExtent; }
+      [[nodiscard]] vk::Extent2D getExtent() const { return _windowExtent; }
 
     private:
-      VkExtent2D _windowExtent;
+      vk::Extent2D _windowExtent;
       std::string _title;
 
       struct SDL_Window *_window = nullptr;

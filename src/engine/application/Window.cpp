@@ -2,15 +2,16 @@
 #include <SDL2/SDL_vulkan.h>
 
 namespace AltE::Application {
-  Window::Window(const std::string &title, uint32_t width, uint32_t height)
+  Window::Window(const std::string &title, int width, int height)
       : _title{title} {
-    _windowExtent = {width, height};
+    _windowExtent.setHeight(height);
+    _windowExtent.setWidth(width);
 
     // We initialize SDL and create a window with it.
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_WindowFlags window_flags =
+    auto window_flags =
         (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     // create blank SDL window for our application
@@ -30,6 +31,10 @@ namespace AltE::Application {
   }
 
   void Window::minimize() { SDL_MinimizeWindow(_window); }
+
+  void Window::show() { SDL_ShowWindow(_window); }
+
+  void Window::hide() { SDL_HideWindow(_window); }
 
   void Window::set_fullscreen(bool state) {
     if (state) {
@@ -63,7 +68,8 @@ namespace AltE::Application {
     }
   }
 
-  void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface) {
+  void Window::createWindowSurface(vk::Instance instance,
+                                   VkSurfaceKHR *surface) {
     SDL_Vulkan_CreateSurface(_window, instance, surface);
   }
 
