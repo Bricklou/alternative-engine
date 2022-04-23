@@ -40,8 +40,6 @@ namespace AltE::Rendering {
       vk::Queue _graphics_queue;
       vk::Queue _present_queue;
 
-      void init();
-      void cleanup();
       void pick_physical_device();
       void create_logical_device();
 

@@ -4,12 +4,7 @@
 namespace AltE::Rendering {
   Device::Device(VulkanInstance *instance, Application::Window *window)
       : _instance{instance}, _window{window} {
-    this->init();
-  }
 
-  Device::~Device() { this->cleanup(); }
-
-  void Device::init() {
     _window->createWindowSurface(_instance->vk_instance(),
                                  reinterpret_cast<VkSurfaceKHR *>(&_surface));
 
@@ -17,7 +12,7 @@ namespace AltE::Rendering {
     this->create_logical_device();
   }
 
-  void Device::cleanup() {
+  Device::~Device() {
     _device.destroy();
     _instance->vk_instance().destroySurfaceKHR(_surface);
   }

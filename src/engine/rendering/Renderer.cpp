@@ -12,6 +12,7 @@ namespace AltE::Rendering {
   void Renderer::init() {
     _instance = std::make_unique<VulkanInstance>(_window);
     _device = std::make_unique<Device>(_instance.get(), _window);
+    _swapchain = std::make_unique<SwapChain>(_instance.get(), _window);
   }
 
   void Renderer::cleanup() {}
