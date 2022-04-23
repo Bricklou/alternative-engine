@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../application/Window.hpp"
+#include "./vulkan/Device/Device.hpp"
 #include "./vulkan/VulkanInstance/VulkanInstance.hpp"
 #include <memory>
 
@@ -19,5 +20,6 @@ namespace AltE::Rendering {
 
       Application::Window *_window;
       std::unique_ptr<VulkanInstance> _instance;
+      std::unique_ptr<Device> _device;
   };
 } // namespace AltE::Rendering
