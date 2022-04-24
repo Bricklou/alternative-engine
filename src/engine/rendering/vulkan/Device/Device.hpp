@@ -30,9 +30,10 @@ namespace AltE::Rendering {
       vk::Device device() { return _device; }
       SwapChainSupportDetails get_swapchain_support();
       vk::SurfaceKHR &surface() { return _surface; }
-      QueueFamilyIndices findPhysicalQueueFamilies();
+      QueueFamilyIndices find_physical_queue_families();
       vk::Queue graphics_queue() { return _graphics_queue; }
       vk::Queue present_queue() { return _present_queue; }
+      vk::CommandPool command_pool() { return _command_pool; }
 
     private:
       vk::Device _device;             // Vulkan device for commands
@@ -45,14 +46,17 @@ namespace AltE::Rendering {
       vk::Queue _graphics_queue;
       vk::Queue _present_queue;
 
+      vk::CommandPool _command_pool;
+
       void pick_physical_device();
       void create_logical_device();
 
       // Helpers methods
-      bool isDeviceSuitable(const vk::PhysicalDevice &physicalDevice);
-      QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device);
-      bool checkDeviceExtensionSupport(vk::PhysicalDevice device);
-      SwapChainSupportDetails querySwapChainSupport(vk::PhysicalDevice device);
+      bool is_device_suitable(const vk::PhysicalDevice &device);
+      QueueFamilyIndices find_queue_families(vk::PhysicalDevice device);
+      bool check_device_extension_support(vk::PhysicalDevice device);
+      SwapChainSupportDetails
+      query_swapchain_support(vk::PhysicalDevice device);
 
       const std::vector<const char *> _device_extensions = {
           VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -61,5 +65,6 @@ namespace AltE::Rendering {
       const std::vector<const char *> _validation_layers = {
           "VK_LAYER_KHRONOS_validation"};
 #endif
+      void create_command_pool();
   };
 } // namespace AltE::Rendering

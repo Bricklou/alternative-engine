@@ -38,7 +38,7 @@ namespace AltE::Rendering {
                static_cast<float>(_swapchain_extent.height);
       }
 
-      vk::Result acquire_nex_image(uint32_t *imageIndex);
+      vk::Result acquire_next_image(uint32_t *imageIndex);
       vk::Result submit_command_buffers(const vk::CommandBuffer *buffers,
                                         uint32_t *imageIndex);
 

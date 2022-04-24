@@ -35,7 +35,7 @@ add_executable(${PROJECT_NAME}
         src/engine/rendering/vulkan/VulkanInstance/VulkanInstance.cpp src/engine/rendering/vulkan/VulkanInstance/VulkanInstance.hpp
         src/engine/rendering/vulkan/Device/Device.cpp src/engine/rendering/vulkan/Device/Device.hpp
         src/engine/rendering/vulkan/SwapChain/SwapChain.cpp src/engine/rendering/vulkan/SwapChain/SwapChain.hpp
-        )
+        src/engine/rendering/vulkan/CommandBuffers/Commandbuffers.cpp src/engine/rendering/vulkan/CommandBuffers/Commandbuffers.hpp)
 
 # ====================
 # Linking

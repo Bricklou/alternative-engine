@@ -10,9 +10,12 @@ namespace AltE::Rendering {
 
     this->pick_physical_device();
     this->create_logical_device();
+    this->create_command_pool();
   }
 
   Device::~Device() {
+    _device.destroyCommandPool(_command_pool, nullptr);
+
     _device.destroy();
     _instance->vk_instance().destroySurfaceKHR(_surface);
   }
@@ -33,7 +36,7 @@ namespace AltE::Rendering {
     }
 
     for (const auto &device : devices) {
-      if (isDeviceSuitable(device)) {
+      if (is_device_suitable(device)) {
         _chosen_gpu = device;
         break;
       }
@@ -47,7 +50,7 @@ namespace AltE::Rendering {
   }
 
   void Device::create_logical_device() {
-    QueueFamilyIndices indices = findQueueFamilies(_chosen_gpu);
+    QueueFamilyIndices indices = find_queue_families(_chosen_gpu);
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily,
@@ -93,14 +96,15 @@ namespace AltE::Rendering {
     _device.getQueue(indices.presentFamily, 0, &_present_queue);
   }
 
-  bool Device::isDeviceSuitable(const vk::PhysicalDevice &device) {
-    QueueFamilyIndices indices = findQueueFamilies(device);
+  bool Device::is_device_suitable(const vk::PhysicalDevice &device) {
+    QueueFamilyIndices indices = find_queue_families(device);
 
-    bool extensionsSupported = checkDeviceExtensionSupport(device);
+    bool extensionsSupported = check_device_extension_support(device);
 
     bool swapChainAdequate = false;
     if (extensionsSupported) {
-      SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+      SwapChainSupportDetails swapChainSupport =
+          query_swapchain_support(device);
       swapChainAdequate = !swapChainSupport.formats.empty() &&
                           !swapChainSupport.presentModes.empty();
     }
@@ -112,7 +116,7 @@ namespace AltE::Rendering {
            supportedFeatures.samplerAnisotropy;
   }
 
-  QueueFamilyIndices Device::findQueueFamilies(vk::PhysicalDevice device) {
+  QueueFamilyIndices Device::find_queue_families(vk::PhysicalDevice device) {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -149,7 +153,7 @@ namespace AltE::Rendering {
     return indices;
   }
 
-  bool Device::checkDeviceExtensionSupport(vk::PhysicalDevice device) {
+  bool Device::check_device_extension_support(vk::PhysicalDevice device) {
     uint32_t extensionCount;
     auto result = device.enumerateDeviceExtensionProperties(
         nullptr, &extensionCount, nullptr);
@@ -177,7 +181,7 @@ namespace AltE::Rendering {
   }
 
   SwapChainSupportDetails
-  Device::querySwapChainSupport(vk::PhysicalDevice device) {
+  Device::query_swapchain_support(vk::PhysicalDevice device) {
     SwapChainSupportDetails details;
     auto result =
         device.getSurfaceCapabilitiesKHR(_surface, &details.capabilities);
@@ -224,10 +228,24 @@ namespace AltE::Rendering {
   }
 
   SwapChainSupportDetails Device::get_swapchain_support() {
-    return querySwapChainSupport(_chosen_gpu);
+    return query_swapchain_support(_chosen_gpu);
   }
 
-  QueueFamilyIndices Device::findPhysicalQueueFamilies() {
-    return findQueueFamilies(_chosen_gpu);
+  QueueFamilyIndices Device::find_physical_queue_families() {
+    return find_queue_families(_chosen_gpu);
+  }
+
+  void Device::create_command_pool() {
+    QueueFamilyIndices queueFamilyIndices = find_physical_queue_families();
+
+    vk::CommandPoolCreateInfo poolInfo{
+        {vk::CommandPoolCreateFlagBits::eTransient |
+         vk::CommandPoolCreateFlagBits::eResetCommandBuffer},
+        queueFamilyIndices.graphicsFamily};
+
+    if (_device.createCommandPool(&poolInfo, nullptr, &_command_pool) !=
+        vk::Result::eSuccess) {
+      throw std::runtime_error("failed to create command pool!");
+    }
   }
 } // namespace AltE::Rendering

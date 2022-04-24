@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../application/Window.hpp"
+#include "./vulkan/CommandBuffers/Commandbuffers.hpp"
 #include "./vulkan/Device/Device.hpp"
 #include "./vulkan/SwapChain/SwapChain.hpp"
 #include "./vulkan/VulkanInstance/VulkanInstance.hpp"
@@ -13,6 +14,9 @@ namespace AltE::Rendering {
       explicit Renderer(Application::Window *window);
       ~Renderer();
 
+      Renderer(const Renderer &) = delete;
+      Renderer &operator=(const Renderer &) = delete;
+
       void render();
 
     private:
@@ -23,6 +27,7 @@ namespace AltE::Rendering {
       std::unique_ptr<VulkanInstance> _instance;
       std::unique_ptr<Device> _device;
       std::unique_ptr<SwapChain> _swapchain;
+      std::unique_ptr<CommandBuffers> _command_buffers;
 
       void recreate_swapchain();
   };

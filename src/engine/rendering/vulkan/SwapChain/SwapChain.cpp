@@ -77,7 +77,7 @@ namespace AltE::Rendering {
         1,
         vk::ImageUsageFlagBits::eColorAttachment};
 
-    QueueFamilyIndices indices = _device->findPhysicalQueueFamilies();
+    QueueFamilyIndices indices = _device->find_physical_queue_families();
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily,
                                      indices.presentFamily};
 
@@ -173,8 +173,7 @@ namespace AltE::Rendering {
         {vk::PipelineStageFlagBits::eColorAttachmentOutput |
          vk::PipelineStageFlagBits::eEarlyFragmentTests},
         {},
-        {vk::AccessFlagBits::eColorAttachmentWrite |
-         vk::AccessFlagBits::eDepthStencilAttachmentWrite}};
+        {vk::AccessFlagBits::eColorAttachmentWrite}};
 
     std::array<vk::AttachmentDescription, 1> attachments = {colorAttachment};
     vk::RenderPassCreateInfo renderPassInfo{
@@ -241,7 +240,7 @@ namespace AltE::Rendering {
     }
   }
 
-  vk::Result SwapChain::acquire_nex_image(uint32_t *imageIndex) {
+  vk::Result SwapChain::acquire_next_image(uint32_t *imageIndex) {
     vk::Result result;
     result = _device->device().waitForFences(
         1, &_in_flight_fences[_current_frame], true,
@@ -359,5 +358,4 @@ namespace AltE::Rendering {
       return actualExtent;
     }
   }
-
 } // namespace AltE::Rendering
