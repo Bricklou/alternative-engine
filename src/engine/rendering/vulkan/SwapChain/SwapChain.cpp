@@ -175,7 +175,7 @@ namespace AltE::Rendering {
         {},
         {vk::AccessFlagBits::eColorAttachmentWrite}};
 
-    std::array<vk::AttachmentDescription, 1> attachments = {colorAttachment};
+    std::vector<vk::AttachmentDescription> attachments = {colorAttachment};
     vk::RenderPassCreateInfo renderPassInfo{
         {},
         static_cast<uint32_t>(attachments.size()),
@@ -194,7 +194,7 @@ namespace AltE::Rendering {
   void SwapChain::create_framebuffers() {
     _swapchain_framebuffers.resize(imageCount());
     for (size_t i = 0; i < imageCount(); i++) {
-      std::array<vk::ImageView, 2> attachments = {_swapchain_image_views[i]};
+      std::vector<vk::ImageView> attachments = {_swapchain_image_views[i]};
 
       vk::Extent2D swapChainExtent = _swapchain_extent;
       vk::FramebufferCreateInfo framebufferInfo{

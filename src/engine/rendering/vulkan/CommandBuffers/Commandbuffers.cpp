@@ -85,7 +85,7 @@ namespace AltE::Rendering {
         _swapchain->getFrameBuffer(_current_image_index),
         {{0, 0}, _swapchain->extent()}};
 
-    std::array<vk::ClearValue, 1> clearValues{};
+    std::vector<vk::ClearValue> clearValues(1);
     clearValues[0].setColor(std::array<float, 4>{0.01f, 0.01f, 0.01f, 1.f});
     renderPassInfo.setClearValueCount(
         static_cast<uint32_t>(clearValues.size()));
