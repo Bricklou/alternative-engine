@@ -35,7 +35,7 @@ namespace AltE::Application {
 
       void createWindowSurface(vk::Instance instance, VkSurfaceKHR *surface);
 
-      [[nodiscard]] vk::Extent2D getExtent() const { return _windowExtent; }
+      [[nodiscard]] vk::Extent2D extent() const { return _windowExtent; }
 
     private:
       vk::Extent2D _windowExtent;

@@ -17,7 +17,6 @@ namespace AltE::Rendering {
 
     private:
       vk::Instance _instance;       // Vulkan library instance
-      vk::SurfaceKHR _surface;      // Vulkan window surface
       Application::Window *_window; // Our application window
 
       std::vector<const char *> get_requires_extensions();

@@ -28,6 +28,11 @@ namespace AltE::Rendering {
       ~Device();
 
       vk::Device device() { return _device; }
+      SwapChainSupportDetails get_swapchain_support();
+      vk::SurfaceKHR &surface() { return _surface; }
+      QueueFamilyIndices findPhysicalQueueFamilies();
+      vk::Queue graphics_queue() { return _graphics_queue; }
+      vk::Queue present_queue() { return _present_queue; }
 
     private:
       vk::Device _device;             // Vulkan device for commands

@@ -222,4 +222,12 @@ namespace AltE::Rendering {
     }
     return details;
   }
+
+  SwapChainSupportDetails Device::get_swapchain_support() {
+    return querySwapChainSupport(_chosen_gpu);
+  }
+
+  QueueFamilyIndices Device::findPhysicalQueueFamilies() {
+    return findQueueFamilies(_chosen_gpu);
+  }
 } // namespace AltE::Rendering

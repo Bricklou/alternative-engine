@@ -40,9 +40,7 @@ namespace AltE {
     _renderThread.join();
   }
 
-  void App::cleanup() {
-    spdlog::debug("Shutting down...");
-  }
+  void App::cleanup() { spdlog::debug("Shutting down..."); }
 
   void App::runRenderLoop() {
     std::unique_ptr<Rendering::Renderer> renderer =

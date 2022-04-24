@@ -23,5 +23,7 @@ namespace AltE::Rendering {
       std::unique_ptr<VulkanInstance> _instance;
       std::unique_ptr<Device> _device;
       std::unique_ptr<SwapChain> _swapchain;
+
+      void recreate_swapchain();
   };
 } // namespace AltE::Rendering
