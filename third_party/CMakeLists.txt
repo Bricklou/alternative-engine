@@ -1,8 +1,5 @@
 find_package(Vulkan REQUIRED)
 
-# vk-bootstrap
-add_subdirectory(vkbootstrap)
-
 # GLM
 add_subdirectory(glm)
 
