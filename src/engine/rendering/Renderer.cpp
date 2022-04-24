@@ -23,6 +23,7 @@ namespace AltE::Rendering {
   void Renderer::cleanup() { _command_buffers->destroy(); }
 
   void Renderer::render() {
+    spdlog::debug("start frame");
     auto commandBuffer = _command_buffers->begin_frame();
     bool needRecreate = false;
 
@@ -30,8 +31,10 @@ namespace AltE::Rendering {
       _command_buffers->begin_swapchain_renderpass(commandBuffer.value());
 
       // Render things
+      spdlog::debug("rendering things");
 
       _command_buffers->end_swapchain_renderpass(commandBuffer.value());
+      spdlog::debug("end frame");
       bool success = _command_buffers->end_frame();
       if (!success) {
         needRecreate = true;
@@ -46,6 +49,7 @@ namespace AltE::Rendering {
   }
 
   void Renderer::recreate_swapchain() {
+    spdlog::debug("recreating swapchain");
     auto extent = _window->extent();
 
     SDL_Event event;

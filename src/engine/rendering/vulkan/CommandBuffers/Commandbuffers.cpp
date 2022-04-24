@@ -1,4 +1,5 @@
 #include "Commandbuffers.hpp"
+#include <spdlog/spdlog.h>
 
 namespace AltE::Rendering {
   CommandBuffers::CommandBuffers(Device *device, SwapChain *swapchain)
@@ -30,6 +31,7 @@ namespace AltE::Rendering {
            "Can't call begin_frame while already in progress");
 
     auto result = _swapchain->acquire_next_image(&_current_image_index);
+    spdlog::debug("next image acquired: {}", _current_image_index);
 
     if (result == vk::Result::eErrorOutOfDateKHR) {
       return {};
@@ -43,6 +45,7 @@ namespace AltE::Rendering {
     _is_frame_started = true;
 
     auto commandBuffer = get_current_command_buffer();
+
     vk::CommandBufferBeginInfo beginInfo{};
 
     if (commandBuffer.begin(&beginInfo) != vk::Result::eSuccess) {
@@ -80,9 +83,10 @@ namespace AltE::Rendering {
            "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == get_current_command_buffer() &&
            "Can't begin render pass on command buffer from a different frame");
+
     vk::RenderPassBeginInfo renderPassInfo{
-        _swapchain->getRenderPass(),
-        _swapchain->getFrameBuffer(_current_image_index),
+        _swapchain->render_pass(),
+        _swapchain->framebuffer(_current_image_index),
         {{0, 0}, _swapchain->extent()}};
 
     std::vector<vk::ClearValue> clearValues(1);

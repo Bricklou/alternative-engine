@@ -1,9 +1,12 @@
 #include "SwapChain.hpp"
+#include <algorithm>
 #include <spdlog/spdlog.h>
 
 #include <utility>
 
 namespace AltE::Rendering {
+  int SwapChain::MAX_FRAMES_IN_FLIGHT = 2;
+
   SwapChain::SwapChain(Device *device, vk::Extent2D window_extent)
       : _device{device}, _window_extent{window_extent} {
     init();
@@ -11,8 +14,8 @@ namespace AltE::Rendering {
 
   SwapChain::SwapChain(Device *device, vk::Extent2D window_extent,
                        std::shared_ptr<SwapChain> oldSwapChain)
-      : _device{device}, _window_extent{window_extent}, _old_swapchain{
-                                                     std::move(oldSwapChain)} {
+      : _device{device}, _window_extent{window_extent},
+        _old_swapchain{std::move(oldSwapChain)} {
     init();
     _old_swapchain = nullptr;
   }
@@ -66,6 +69,8 @@ namespace AltE::Rendering {
         imageCount > swapChainSupport.capabilities.maxImageCount) {
       imageCount = swapChainSupport.capabilities.maxImageCount;
     }
+
+    SwapChain::MAX_FRAMES_IN_FLIGHT = std::max(2, static_cast<int>(imageCount));
 
     vk::SwapchainCreateInfoKHR createInfo{
         {},
@@ -247,7 +252,7 @@ namespace AltE::Rendering {
         std::numeric_limits<uint64_t>::max());
 
     if (result != vk::Result::eSuccess) {
-      return result;
+      throw std::runtime_error("failed to wait for in flight fence");
     }
 
     result = _device->device().acquireNextImageKHR(

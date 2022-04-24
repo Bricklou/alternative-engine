@@ -1,4 +1,5 @@
 #include "Device.hpp"
+#include <spdlog/spdlog.h>
 #include <set>
 
 namespace AltE::Rendering {
@@ -18,6 +19,7 @@ namespace AltE::Rendering {
 
     _device.destroy();
     _instance->vk_instance().destroySurfaceKHR(_surface);
+    spdlog::debug("Device destroyed");
   }
 
   void Device::pick_physical_device() {

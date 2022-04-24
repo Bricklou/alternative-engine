@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../Device/Device.hpp"
 #include "../../../application/Window.hpp"
+#include "../Device/Device.hpp"
 #include <vulkan/vulkan.hpp>
 
 namespace AltE::Rendering {
   class SwapChain {
     public:
-      static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+      static int MAX_FRAMES_IN_FLIGHT;
 
       explicit SwapChain(Device *device, vk::Extent2D window_extent);
       explicit SwapChain(Device *device, vk::Extent2D window_extent,
@@ -20,10 +20,10 @@ namespace AltE::Rendering {
       vk::SwapchainKHR swapchain() { return _swapchain; }
       size_t imageCount() { return _swapchain_images.size(); }
 
-      vk::Framebuffer getFrameBuffer(int index) {
+      vk::Framebuffer framebuffer(int index) {
         return _swapchain_framebuffers[index];
       }
-      vk::RenderPass getRenderPass() { return _render_pass; }
+      vk::RenderPass render_pass() { return _render_pass; }
       vk::ImageView getImageView(int index) {
         return _swapchain_image_views[index];
       }
@@ -42,7 +42,8 @@ namespace AltE::Rendering {
       vk::Result submit_command_buffers(const vk::CommandBuffer *buffers,
                                         uint32_t *imageIndex);
 
-      [[nodiscard]] bool compare_swap_formats(const SwapChain &swapChain) const {
+      [[nodiscard]] bool
+      compare_swap_formats(const SwapChain &swapChain) const {
         return swapChain._swapchain_image_format == _swapchain_image_format;
       }
 
