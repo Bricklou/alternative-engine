@@ -31,7 +31,6 @@ namespace AltE::Rendering {
            "Can't call begin_frame while already in progress");
 
     auto result = _swapchain->acquire_next_image(&_current_image_index);
-    spdlog::debug("next image acquired: {}", _current_image_index);
 
     if (result == vk::Result::eErrorOutOfDateKHR) {
       return {};
@@ -65,8 +64,10 @@ namespace AltE::Rendering {
                                                      &_current_image_index);
     if (result == vk::Result::eErrorOutOfDateKHR ||
         result == vk::Result::eSuboptimalKHR) {
+      _is_frame_started = false;
       return false;
     } else if (result != vk::Result::eSuccess) {
+      _is_frame_started = false;
       throw std::runtime_error("failed to prevent swapchain image");
     }
 

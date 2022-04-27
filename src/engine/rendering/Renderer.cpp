@@ -23,45 +23,36 @@ namespace AltE::Rendering {
   void Renderer::cleanup() { _command_buffers->destroy(); }
 
   void Renderer::render() {
-    spdlog::debug("start frame");
+    if (_window->was_resized()) {
+      recreate_swapchain();
+      return;
+    }
+
     auto commandBuffer = _command_buffers->begin_frame();
-    bool needRecreate = false;
 
     if (commandBuffer.has_value()) {
       _command_buffers->begin_swapchain_renderpass(commandBuffer.value());
 
       // Render things
-      spdlog::debug("rendering things");
 
       _command_buffers->end_swapchain_renderpass(commandBuffer.value());
-      spdlog::debug("end frame");
       bool success = _command_buffers->end_frame();
       if (!success) {
-        needRecreate = true;
+        recreate_swapchain();
       }
-    } else {
-      needRecreate = true;
     }
 
-    if (needRecreate) {
-      recreate_swapchain();
-    }
+    _device->device().waitIdle();
   }
 
   void Renderer::recreate_swapchain() {
-    spdlog::debug("recreating swapchain");
     auto extent = _window->extent();
 
-    SDL_Event event;
-    while (extent.width == 0 || extent.height == 0) {
-      extent = _window->extent();
-      SDL_WaitEvent(&event);
-    }
     _device->device().waitIdle();
 
     if (_swapchain == nullptr) {
       _swapchain =
-          std::make_unique<SwapChain>(_device.get(), _window->extent());
+          std::make_unique<SwapChain>(_device.get(), extent);
     } else {
       std::shared_ptr<SwapChain> oldSwapChain = std::move(_swapchain);
       _swapchain =
@@ -70,6 +61,10 @@ namespace AltE::Rendering {
       if (!oldSwapChain->compare_swap_formats(*_swapchain)) {
         throw std::runtime_error("Swapchain image format has changed");
       }
+      _command_buffers->update_swapchain(_swapchain.get());
     }
+
+
+    _window->reset_resize_flag();
   }
 } // namespace AltE::Rendering

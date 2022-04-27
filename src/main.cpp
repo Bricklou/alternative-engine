@@ -2,9 +2,9 @@
 #include <iostream>
 
 int main() {
-  AltE::App app{};
 
   try {
+    AltE::App app{};
     app.run();
   } catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;

@@ -337,12 +337,10 @@ namespace AltE::Rendering {
       const std::vector<vk::PresentModeKHR> &availablePresentModes) {
     for (const auto &availablePresentMode : availablePresentModes) {
       if (availablePresentMode == vk::PresentModeKHR::eMailbox) {
-        spdlog::debug("Present mode: Mailbox");
         return availablePresentMode;
       }
     }
 
-    spdlog::debug("Present mode: V-Sync");
     return vk::PresentModeKHR::eFifo;
   }
 

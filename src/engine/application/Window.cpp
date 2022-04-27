@@ -12,7 +12,8 @@ namespace AltE::Application {
     SDL_Init(SDL_INIT_VIDEO);
 
     auto window_flags =
-        (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+        (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE |
+                          SDL_WINDOW_MINIMIZED);
 
     // create blank SDL window for our application
     _window = SDL_CreateWindow(

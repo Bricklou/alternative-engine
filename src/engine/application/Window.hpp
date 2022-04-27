@@ -37,10 +37,26 @@ namespace AltE::Application {
 
       [[nodiscard]] vk::Extent2D extent() const { return _windowExtent; }
 
+      [[nodiscard]] bool was_resized() const {
+        return _window_resized_flags;
+      }
+
+      void reset_resize_flag() {
+        _window_resized_flags = false;
+      }
+
+      void update_extent() {
+        int w,h;
+        SDL_GetWindowSize(_window, &w, &h);
+        _windowExtent.width = static_cast<uint32_t>(w);
+        _windowExtent.height = static_cast<uint32_t>(h);
+      }
+
     private:
       vk::Extent2D _windowExtent;
       std::string _title;
 
       struct SDL_Window *_window = nullptr;
+      bool _window_resized_flags = false;
   };
 } // namespace AltE::Application

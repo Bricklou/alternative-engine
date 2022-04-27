@@ -22,5 +22,6 @@ namespace AltE {
       void cleanup();
 
       std::atomic<bool> _should_close{false};
+      std::mutex _mtx;
   };
 } // namespace AltE
