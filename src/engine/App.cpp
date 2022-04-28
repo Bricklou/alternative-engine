@@ -34,9 +34,14 @@ namespace AltE {
     using namespace Application;
 
     SDL_Event event;
+    uint64_t startTime;
+    int64_t frameTime;
 
     while (!this->_should_close) {
+      startTime = SDL_GetTicks64();
 
+      std::chrono::system_clock::now();
+      bool window_resized = false;
       while (SDL_PollEvent(&event)) {
         switch (event.type) {
           case SDL_QUIT:
@@ -55,7 +60,7 @@ namespace AltE {
           case SDL_WINDOWEVENT:
             {
               if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                on_window_resize();
+                window_resized = true;
               }
             }
           default:
@@ -63,7 +68,15 @@ namespace AltE {
         }
       }
 
-      std::this_thread::sleep_for(10ms);
+      if (window_resized) {
+        on_window_resize();
+      }
+
+      frameTime = SDL_GetTicks64() - startTime;
+
+      if (50 > frameTime) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50-frameTime));
+      }
     }
 
     _renderThread.join();
