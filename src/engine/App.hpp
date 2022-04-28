@@ -21,6 +21,8 @@ namespace AltE {
       void runRenderLoop();
       void cleanup();
 
+      void on_window_resize();
+
       std::atomic<bool> _should_close{false};
       std::mutex _mtx;
   };

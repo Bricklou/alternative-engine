@@ -16,14 +16,14 @@ namespace AltE {
     _window =
         std::make_unique<Application::Window>("Alternative-Engine", 800, 600);
 
-    SDL_Delay(200);
+    std::this_thread::sleep_for(200ms);
 
     _renderThread = std::thread(&App::runRenderLoop, this);
 
-    pthread_setname_np(pthread_self(), "AltE main thread");
-    pthread_setname_np(_renderThread.native_handle(), "AltE render thread");
+    pthread_setname_np(pthread_self(), "AltE-main");
+    pthread_setname_np(_renderThread.native_handle(), "AltE-render");
 
-    SDL_Delay(200);
+    std::this_thread::sleep_for(200ms);
 
     _window->show();
   }
@@ -34,13 +34,8 @@ namespace AltE {
     using namespace Application;
 
     SDL_Event event;
-    int frameTime;
-    uint32_t frameStart;
-    const int frameDelay = 1000 / 60;
 
     while (!this->_should_close) {
-      // Stores the number of ticks at the start of the loop
-      frameStart = SDL_GetTicks();
 
       while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -60,27 +55,27 @@ namespace AltE {
           case SDL_WINDOWEVENT:
             {
               if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                this->_mtx.lock();
-                _window->update_extent();
-                this->_mtx.unlock();
+                on_window_resize();
               }
             }
+          default:
+            break;
         }
       }
 
-      // This measures how long this iteration of the loop took
-      frameTime = SDL_GetTicks() - frameStart;
-
-      // This keeps us from displaying more frames than 60/Second
-      if (frameDelay > frameTime) {
-        SDL_Delay(frameDelay - frameTime);
-      }
+      std::this_thread::sleep_for(10ms);
     }
 
     _renderThread.join();
   }
 
   void App::cleanup() { spdlog::debug("Shutting down..."); }
+
+  void App::on_window_resize() {
+    this->_mtx.lock();
+    _window->update_extent();
+    this->_mtx.unlock();
+  }
 
   void App::runRenderLoop() {
 
