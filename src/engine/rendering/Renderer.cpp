@@ -18,6 +18,8 @@ namespace AltE::Rendering {
     _command_buffers =
         std::make_unique<CommandBuffers>(_device.get(), _swapchain.get());
     _command_buffers->create();
+
+    _imgui_renderer = std::make_unique<ImGuiRenderer>(this);
   }
 
   void Renderer::cleanup() { _command_buffers->destroy(); }
@@ -33,7 +35,14 @@ namespace AltE::Rendering {
     if (commandBuffer.has_value()) {
       _command_buffers->begin_swapchain_renderpass(commandBuffer.value());
 
+      // Prepare imgui
+      _imgui_renderer->prepare();
+
       // Render things
+
+
+      // Need to be put at the end
+      _imgui_renderer->render(commandBuffer.value());
 
       _command_buffers->end_swapchain_renderpass(commandBuffer.value());
       bool success = _command_buffers->end_frame();

@@ -27,13 +27,14 @@ namespace AltE::Rendering {
       explicit Device(VulkanInstance *instance, Application::Window *window);
       ~Device();
 
-      vk::Device device() { return _device; }
+      vk::Device & device() { return _device; }
+      vk::PhysicalDevice &physical_device() { return _chosen_gpu; }
       SwapChainSupportDetails get_swapchain_support();
       vk::SurfaceKHR &surface() { return _surface; }
       QueueFamilyIndices find_physical_queue_families();
-      vk::Queue graphics_queue() { return _graphics_queue; }
-      vk::Queue present_queue() { return _present_queue; }
-      vk::CommandPool command_pool() { return _command_pool; }
+      vk::Queue &graphics_queue() { return _graphics_queue; }
+      vk::Queue &present_queue() { return _present_queue; }
+      vk::CommandPool &command_pool() { return _command_pool; }
 
     private:
       vk::Device _device;             // Vulkan device for commands

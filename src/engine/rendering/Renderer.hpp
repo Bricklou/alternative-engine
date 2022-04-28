@@ -5,6 +5,7 @@
 #include "./vulkan/Device/Device.hpp"
 #include "./vulkan/SwapChain/SwapChain.hpp"
 #include "./vulkan/VulkanInstance/VulkanInstance.hpp"
+#include "./ImGui/ImGui.hpp"
 #include <memory>
 
 namespace AltE::Rendering {
@@ -19,6 +20,12 @@ namespace AltE::Rendering {
 
       void render();
 
+      VulkanInstance* get_instance() { return _instance.get();}
+      Device* get_device() { return _device.get(); }
+      SwapChain* get_swapchain() { return _swapchain.get(); }
+      Application::Window* get_window() { return _window; }
+      CommandBuffers* get_command_buffers() { return _command_buffers.get(); }
+
     private:
       void init();
       void cleanup();
@@ -28,6 +35,7 @@ namespace AltE::Rendering {
       std::unique_ptr<Device> _device;
       std::unique_ptr<SwapChain> _swapchain;
       std::unique_ptr<CommandBuffers> _command_buffers;
+      std::unique_ptr<ImGuiRenderer> _imgui_renderer;
 
       void recreate_swapchain();
   };

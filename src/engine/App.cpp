@@ -1,6 +1,8 @@
 #include "App.hpp"
 #include "rendering/Renderer.hpp"
 #include <chrono>
+#include <imgui_impl_sdl.h>
+#include <imgui_impl_vulkan.h>
 #include <pthread.h>
 
 using namespace std::chrono_literals;
@@ -43,6 +45,8 @@ namespace AltE {
       std::chrono::system_clock::now();
       bool window_resized = false;
       while (SDL_PollEvent(&event)) {
+        ImGui_ImplSDL2_ProcessEvent(&event);
+
         switch (event.type) {
           case SDL_QUIT:
             {
@@ -75,7 +79,7 @@ namespace AltE {
       frameTime = SDL_GetTicks64() - startTime;
 
       if (50 > frameTime) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50-frameTime));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50 - frameTime));
       }
     }
 
