@@ -3,7 +3,8 @@
 	url = https://github.com/gabime/spdlog.git
 [submodule "third_party/imgui"]
 	path = third_party/imgui
-	url = https://github.com/ocornut/imgui.git
+	url = https://github.com/bricklou/imgui.git
+	branch = docking
 [submodule "third_party/VulkanMemoryAllocator"]
 	path = third_party/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git

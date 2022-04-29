@@ -25,5 +25,6 @@ namespace AltE {
 
       std::atomic<bool> _should_close{false};
       std::mutex _mtx;
+      SDL_Event _last_event = {};
   };
 } // namespace AltE

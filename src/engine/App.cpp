@@ -17,6 +17,9 @@ namespace AltE {
 
     _window =
         std::make_unique<Application::Window>("Alternative-Engine", 800, 600);
+    _window->set_icon("./assets/textures/icon.png");
+
+    Rendering::ImGuiRenderer::init();
 
     std::this_thread::sleep_for(200ms);
 
@@ -47,6 +50,11 @@ namespace AltE {
       while (SDL_PollEvent(&event)) {
         ImGui_ImplSDL2_ProcessEvent(&event);
 
+        if (_last_event.type == SDL_WINDOWEVENT &&
+            event.type != SDL_WINDOWEVENT) {
+          window_resized = true;
+        }
+
         switch (event.type) {
           case SDL_QUIT:
             {
@@ -55,21 +63,25 @@ namespace AltE {
           case SDL_KEYDOWN:
             {
               if (event.key.keysym.sym == SDLK_F11) {
-                bool is_fullscreen = _window->get_state() ==
-                                     Window::WindowState::BorderlessFullscreen;
+                if (event.key.keysym.mod & KMOD_SHIFT) {
+                  bool is_fullscreen =
+                      _window->get_state() == Window::WindowState::Fullscreen;
 
-                _window->set_borderless_fullscreen(!is_fullscreen);
-              }
-            }
-          case SDL_WINDOWEVENT:
-            {
-              if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                window_resized = true;
+                  _window->set_fullscreen(!is_fullscreen);
+                } else {
+                  bool is_borderless_fullscreen =
+                      _window->get_state() ==
+                      Window::WindowState::BorderlessFullscreen;
+
+                  _window->set_borderless_fullscreen(!is_borderless_fullscreen);
+                }
               }
             }
           default:
             break;
         }
+
+        _last_event = event;
       }
 
       if (window_resized) {
@@ -95,7 +107,6 @@ namespace AltE {
   }
 
   void App::runRenderLoop() {
-
     std::unique_ptr<Rendering::Renderer> renderer =
         std::make_unique<Rendering::Renderer>(_window.get());
 

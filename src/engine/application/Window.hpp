@@ -52,6 +52,8 @@ namespace AltE::Application {
         _windowExtent.height = static_cast<uint32_t>(h);
       }
 
+      void set_icon(const std::string& path);
+
     private:
       vk::Extent2D _windowExtent;
       std::string _title;

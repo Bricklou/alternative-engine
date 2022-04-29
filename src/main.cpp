@@ -2,7 +2,6 @@
 #include <iostream>
 
 int main() {
-
   try {
     AltE::App app{};
     app.run();

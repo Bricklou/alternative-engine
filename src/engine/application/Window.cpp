@@ -1,5 +1,9 @@
 #include "Window.hpp"
 #include <SDL2/SDL_vulkan.h>
+#include <filesystem>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 namespace AltE::Application {
   Window::Window(const std::string &title, int width, int height)
@@ -72,6 +76,42 @@ namespace AltE::Application {
   void Window::createWindowSurface(vk::Instance instance,
                                    VkSurfaceKHR *surface) {
     SDL_Vulkan_CreateSurface(_window, instance, surface);
+  }
+
+  void Window::set_icon(const std::string &path) {
+    int width, height, bytesPerPixel;
+    stbi_uc *pixels = stbi_load(path.c_str(), &width, &height, &bytesPerPixel,
+                                STBI_rgb_alpha);
+
+    // Calculate pitch
+    int pitch;
+    pitch = width * bytesPerPixel;
+    pitch = (pitch + 3) & ~3;
+
+    // Setup relevance bitmask
+    uint32_t Rmask, Gmask, Bmask, Amask;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    Rmask = 0x000000FF;
+    Gmask = 0x0000FF00;
+    Bmask = 0x00FF0000;
+    Amask = (bytesPerPixel == 4) ? 0xFF000000 : 0;
+#else
+    int s = (bytesPerPixel == 4) ? 0 : 8;
+    Rmask = 0xFF000000 >> s;
+    Gmask = 0x00FF0000 >> s;
+    Bmask = 0x0000FF00 >> s;
+    Amask = 0x000000FF >> s;
+#endif
+
+    SDL_Surface *surface;
+    surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, bytesPerPixel * 8,
+                                       pitch, Rmask, Gmask, Bmask, Amask);
+
+    // The icon is attached to the window pointer
+    SDL_SetWindowIcon(_window, surface);
+
+    // ...and the surface containing the icon pixel data is no longer required.
+    SDL_FreeSurface(surface);
   }
 
 } // namespace AltE::Application

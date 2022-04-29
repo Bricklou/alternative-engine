@@ -43,7 +43,7 @@ add_executable(${PROJECT_NAME}
 # ====================
 target_link_libraries(${PROJECT_NAME} Vulkan::Headers VulkanMemoryAllocator glm imgui stb_image)
 target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan SDL2)
-target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog headers)
 
 # ====================
 # Build options

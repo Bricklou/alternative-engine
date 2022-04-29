@@ -12,6 +12,7 @@ namespace AltE::Rendering {
       explicit ImGuiRenderer(Renderer* renderer);
       ~ImGuiRenderer();
 
+      static void init();
       void prepare();
       void render(vk::CommandBuffer& cmd);
 
@@ -21,6 +22,7 @@ namespace AltE::Rendering {
 
       void create_descriptor_pool();
       void init_imgui();
+      void configure_theme();
   };
 
 } // namespace AltE::Rendering
