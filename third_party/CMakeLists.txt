@@ -8,7 +8,6 @@ add_subdirectory(VulkanMemoryAllocator)
 
 # stb_image
 add_library(stb_image INTERFACE)
-# target_sources(stb_image INTERFACE stb_image/stb_image.h)
 target_include_directories(stb_image INTERFACE stb_image)
 
 # SDL2
@@ -25,3 +24,13 @@ add_subdirectory(spdlog)
 set ( SAMPLES_BUILD OFF CACHE INTERNAL "Build the vulkan hpp samples" )
 set ( VULKAN_HPP_INSTALL OFF CACHE INTERNAL "Install vulkan hpp" )
 add_subdirectory(Vulkan-Hpp/Vulkan-Headers)
+
+# nlohmann json
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(nlohmann_json)
+
+# lz4
+add_subdirectory(lz4/build/cmake)
+
+# OpenAl
+add_subdirectory(openal-soft)

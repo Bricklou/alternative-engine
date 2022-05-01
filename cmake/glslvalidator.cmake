@@ -1,9 +1,9 @@
 find_program(GLSL_VALIDATOR glslangValidator HINTS /usr/bin /usr/local/bin $ENV{VULKAN_SDK}/Bin/ $ENV{VULKAN_SDK}/Bin32/)
 
 file(GLOB_RECURSE GLSL_SOURCE_FILES
-    "${PROJECT_SOURCE_DIR}/assets/*.frag"
-    "${PROJECT_SOURCE_DIR}/assets/*.vert"
-    "${PROJECT_SOURCE_DIR}/assets/*.comp"
+    "${PROJECT_SOURCE_DIR}/assets_src/shaders/*.frag"
+    "${PROJECT_SOURCE_DIR}/assets_src/shaders/*.vert"
+    "${PROJECT_SOURCE_DIR}/assets_src/shaders/*.comp"
 )
 
 foreach(GLSL ${GLSL_SOURCE_FILES})
