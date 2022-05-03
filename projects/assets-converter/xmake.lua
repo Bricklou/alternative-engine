@@ -1,4 +1,4 @@
-add_requires("stb", "openal-soft", "libsndfile")
+add_requires("stb", "libsndfile")
 
 target("assets-converter")
     set_kind("binary")
@@ -6,5 +6,5 @@ target("assets-converter")
     add_files("src/**.cpp")
     add_headerfiles("src/**.hpp")
 
-    add_packages("stb", "openal-soft", "libsndfile")
+    add_packages("stb", "libsndfile")
     add_deps("assetslib")

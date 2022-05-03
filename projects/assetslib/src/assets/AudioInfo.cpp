@@ -5,10 +5,27 @@
 #include <nlohmann/json.hpp>
 
 namespace assetslib {
+AudioFormat parse_format(const char *f) {
+  if (strcmp(f, "MONO16") == 0) {
+    return AudioFormat::Mono16;
+  } else if (strcmp(f, "STEREO16") == 0) {
+    return AudioFormat::Stereo16;
+  } else if (strcmp(f, "STEREO8") == 0) {
+    return AudioFormat::Stereo8;
+  } else if (strcmp(f, "3D_16") == 0) {
+    return AudioFormat::B3D_16;
+  } else {
+    return AudioFormat::Unknown;
+  }
+}
+
 AudioInfo read_audio_info(const AssetFile *file) {
   AudioInfo info;
 
   nlohmann::json audio_metadata = nlohmann::json::parse(file->json);
+
+  std::string formatString = audio_metadata["format"];
+  info.audio_format = parse_format(formatString.c_str());
 
   std::string compressionString = audio_metadata["compression"];
   info.compression_mode = parse_compression(compressionString.c_str());

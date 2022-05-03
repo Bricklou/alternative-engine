@@ -3,8 +3,6 @@
 #include "assetslib/assets/AssetFile.hpp"
 #include "assetslib/assets/AudioInfo.hpp"
 #include "sndfile.h"
-#include <AL/al.h>
-#include <AL/alext.h>
 #include <corecrt_malloc.h>
 #include <iostream>
 #include <stdexcept>
@@ -17,7 +15,7 @@ void convert_audio(const std::filesystem::path &input,
                    const std::filesystem::path &output) {
   SNDFILE *sndfile;
   SF_INFO sfinfo;
-  ALenum format;
+  assetslib::AudioFormat format;
   std::vector<short> membuf;
   sf_count_t num_frames;
 
@@ -35,31 +33,27 @@ void convert_audio(const std::filesystem::path &input,
                        " " + std::to_string(sfinfo.frames));
   }
 
-  // Get the sound format, and figure out the OpenAL format
-  format = AL_NONE;
   switch (sfinfo.channels) {
   case 1:
-    format = AL_FORMAT_MONO16;
+    format = assetslib::AudioFormat::Mono16;
     break;
   case 2:
-    format = AL_FORMAT_STEREO16;
+    format = assetslib::AudioFormat::Stereo16;
     break;
   case 3:
     if (sf_command(sndfile, SFC_WAVEX_GET_AMBISONIC, nullptr, 0) ==
         SF_AMBISONIC_B_FORMAT) {
 
-      format = AL_FORMAT_STEREO8;
+      format = assetslib::AudioFormat::Stereo8;
       break;
     }
   case 4:
     if (sf_command(sndfile, SFC_WAVEX_GET_AMBISONIC, nullptr, 0) ==
         SF_AMBISONIC_B_FORMAT) {
-      format = AL_FORMAT_BFORMAT3D_16;
+      format = assetslib::AudioFormat::B3D_16;
       break;
     }
-  }
-
-  if (!format) {
+  default:
     sf_close(sndfile);
     throw std::runtime_error("Unsupported audio format: " + input.string());
   }
@@ -77,7 +71,7 @@ void convert_audio(const std::filesystem::path &input,
   int num_bytes = (int)(num_frames * sfinfo.channels) * (int)sizeof(short);
 
   assetslib::AudioInfo audioInfo;
-  audioInfo.format = format;
+  audioInfo.audio_format = format;
   audioInfo.sample_rate = sfinfo.samplerate;
   audioInfo.channels_count = sfinfo.channels;
   audioInfo.original_file = input.string();
