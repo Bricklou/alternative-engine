@@ -4,7 +4,6 @@
 #include "types/audio.hpp"
 #include "types/image.hpp"
 
-
 namespace Converter {
 void convert(const std::filesystem::path &input_file,
              const std::filesystem::path &output_file) {

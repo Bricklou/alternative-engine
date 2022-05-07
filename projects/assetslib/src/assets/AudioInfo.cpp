@@ -1,6 +1,7 @@
 #include "assetslib/assets/AssetFile.hpp"
 #include <assetslib/assets/AudioInfo.hpp>
 #include <cstring>
+// TODO: use libogg to compress/uncompress audio
 #include <lz4.h>
 #include <nlohmann/json.hpp>
 
@@ -16,6 +17,21 @@ AudioFormat parse_format(const char *f) {
     return AudioFormat::B3D_16;
   } else {
     return AudioFormat::Unknown;
+  }
+}
+
+std::string unparse_format(AudioFormat f) {
+  switch (f) {
+  case AudioFormat::Mono16:
+    return "MONO16";
+  case AudioFormat::Stereo16:
+    return "STEREO16";
+  case AudioFormat::Stereo8:
+    return "STEREO8";
+  case AudioFormat::B3D_16:
+    return "3D_16";
+  default:
+    return "UNKNOWN";
   }
 }
 
@@ -49,7 +65,7 @@ void unpack_audio(AudioInfo *info, const char *source_buffer,
 AssetFile pack_audio(AudioInfo *info, void *audio_data) {
   nlohmann::json audio_metadata;
   audio_metadata["buffer_size"] = info->audio_size;
-  audio_metadata["original_siez"] = info->original_file;
+  audio_metadata["original_file"] = info->original_file;
 
   // core file header
   AssetFile file;
@@ -70,6 +86,7 @@ AssetFile pack_audio(AudioInfo *info, void *audio_data) {
   file.binany_blob.resize(compressed_size);
 
   audio_metadata["compression"] = "LZ4";
+  audio_metadata["format"] = unparse_format(info->audio_format);
 
   std::string stringified = audio_metadata.dump();
   file.json = stringified;
