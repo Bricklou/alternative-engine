@@ -1,5 +1,5 @@
 #include "MusicBuffer.hpp"
-#include "AL/al.h"
+#include "../AL/al.hpp"
 #include <cstddef>
 #include <iostream>
 #include <stdexcept>
@@ -139,4 +139,36 @@ MusicBuffer::~MusicBuffer() {
   ogg_close(_audio_data);
 
   alDeleteBuffers(NUM_BUFFERS, _buffers);
+}
+
+void MusicBuffer::set_looping(bool looping) {
+  alSourcei(_source, AL_LOOPING, looping);
+}
+
+void MusicBuffer::set_position(const float &x, const float &y, const float &z) {
+  alSource3f(_source, AL_POSITION, x, y, z);
+}
+
+void MusicBuffer::set_velocity(const float &x, const float &y, const float &z) {
+  alSource3f(_source, AL_VELOCITY, x, y, z);
+}
+
+PlayingState MusicBuffer::get_state() {
+  ALint state;
+  alGetSourcei(_source, AL_SOURCE_STATE, &state);
+
+  AL_CheckAndThrow();
+
+  switch (state) {
+  case AL_INITIAL:
+    return PlayingState::Initial;
+  case AL_PLAYING:
+    return PlayingState::Playing;
+  case AL_PAUSED:
+    return PlayingState::Paused;
+  case AL_STOPPED:
+    return PlayingState::Stopped;
+  default:
+    return PlayingState::Unknown;
+  }
 }

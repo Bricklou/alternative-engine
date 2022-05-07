@@ -4,6 +4,7 @@
 #include <AL/al.h>
 #include <vector>
 
+enum class PlayingState { Initial, Playing, Paused, Stopped, Unknown };
 class MusicBuffer {
 public:
   void play();
@@ -16,6 +17,11 @@ public:
   ~MusicBuffer();
 
   ALint get_source();
+  void set_looping(bool looping);
+  void set_position(const float &x, const float &y, const float &z);
+  void set_velocity(const float &x, const float &y, const float &z);
+
+  PlayingState get_state();
 
 private:
   ALuint _source;
