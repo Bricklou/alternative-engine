@@ -2,15 +2,8 @@
 #include "AL/al.h"
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"
-#include <cstddef>
 #include <cstdint>
-#include <cstring>
-#include <ios>
 #include <iostream>
-#include <limits>
-#include <stdint.h>
-#include <stdio.h>
-#include <vector>
 
 std::size_t read_ogg_callback(void *destination, std::size_t size1,
                               std::size_t size2, void *fileHandle) {
