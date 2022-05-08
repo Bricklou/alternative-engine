@@ -1,8 +1,8 @@
 #include "Player.hpp"
-#include "spdlog/spdlog.h"
 #include <iostream>
+#include <spdlog/spdlog.h>
 
-Player::Player() : Entity{} { std::cout << "Player created" << std::endl; }
+Player::Player() { spdlog::info("Player::Player()"); }
 
 Player::~Player() {}
 

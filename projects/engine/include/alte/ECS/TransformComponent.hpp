@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 namespace AltE {
-  struct ALTE_API Transformable {
+  struct ALTE_API TransformComponent {
     public:
       void set_position(const glm::vec3 &position);
       void set_rotation(const glm::vec3 &rotation);

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "alte/objects/Entity.hpp"
-
-class Player : public AltE::Entity {
+class Player {
   public:
     Player();
     ~Player();
