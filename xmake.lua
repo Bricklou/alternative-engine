@@ -13,9 +13,6 @@ end
 
 set_license("GPL-3.0")
 
-includes("projects/assetslib")
-includes("projects/assets-converter")
-
 includes("projects/audio-test")
 
 includes("projects/engine")

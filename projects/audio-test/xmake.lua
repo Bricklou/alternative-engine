@@ -6,4 +6,3 @@ target("audio-test")
     add_headerfiles("src/**.hpp")
 
     add_packages("openal-soft", "libogg", "libvorbis")
-    add_deps("assetslib")
