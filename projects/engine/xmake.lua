@@ -1,4 +1,4 @@
-add_requires("spdlog", "glm", "entt")
+add_requires("spdlog", "glm", "entt", "openal-soft")
 add_requires("assetslib")
 
 target("engine")
@@ -9,6 +9,6 @@ target("engine")
     add_includedirs("include", { public = true })
 
     add_packages("spdlog", "glm", "entt", { public = true })
-    add_packages("assetslib")
+    add_packages("assetslib", "openal-soft")
 
     add_defines("ALTE_BUILD")
