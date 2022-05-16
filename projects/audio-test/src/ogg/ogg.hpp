@@ -6,7 +6,6 @@
 #include <vector>
 #include <vorbis/vorbisfile.h>
 
-
 #define OGG_BUFFER_SIZE 65536
 
 struct AudioData {
@@ -22,7 +21,7 @@ struct AudioData {
 
     std::size_t duration;
 
-    std::int_fast32_t ogg_current_section = 0;
+    int ogg_current_section = 0;
 };
 
 void ogg_open(const char *filename, AudioData &audio_data);

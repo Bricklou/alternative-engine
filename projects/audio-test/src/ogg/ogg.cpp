@@ -3,7 +3,9 @@
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"
 #include <cstdint>
+#include <cstring>
 #include <iostream>
+#include <limits>
 
 std::size_t read_ogg_callback(void *destination, std::size_t size1,
                               std::size_t size2, void *fileHandle) {

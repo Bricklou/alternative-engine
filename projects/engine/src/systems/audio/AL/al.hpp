@@ -1,5 +1,5 @@
 #include <AL/alc.h>
-#include <Al/al.h>
+#include <AL/al.h>
 
 
 #include "OpenALErrorCheck.hpp"

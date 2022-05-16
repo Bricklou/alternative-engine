@@ -1,4 +1,5 @@
-add_requires("spdlog", "glm", "entt", "openal-soft")
+add_requires("glm", "entt", "openal-soft", "fmt")
+add_requires("spdlog", { system = false })
 add_requires("assetslib")
 
 target("engine")
@@ -12,3 +13,5 @@ target("engine")
     add_packages("assetslib", "openal-soft")
 
     add_defines("ALTE_BUILD")
+    add_defines("SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE")
+    add_defines("SPDLOG_FMT_EXTERNAL")

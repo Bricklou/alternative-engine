@@ -1,15 +1,11 @@
 #pragma once
 
-// Macro to export/import symbols
-#define ALTE_EXPORT __declspec(dllexport)
-#define ALTE_IMPORT __declspec(dllimport)
-
 // If the system is running on mac or linux
-#if defined(__APPLE__) || defined(__LINUX__)
+#if defined(__APPLE__) || defined(__linux__)
 
 // Linux and Mac
-#define ALTE_EXPORT [[gnu::visibility("default")]]
-#define ALTE_IMPORT [[gnu::visibility("default")]]
+#define ALTE_EXPORT __attribute__((__visibility__("default")))
+#define ALTE_IMPORT __attribute__((__visibility__("default")))
 
 // If the system is running on windows
 #elif defined(_WIN32)

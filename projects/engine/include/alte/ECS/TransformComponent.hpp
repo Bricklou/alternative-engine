@@ -1,6 +1,6 @@
 #pragma once
 
-#include "alte/export.hpp"
+#include <alte/export.hpp>
 #include <glm/glm.hpp>
 
 namespace AltE {

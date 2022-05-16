@@ -1,10 +1,8 @@
 #pragma once
 
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
-
 #include <alte/export.hpp>
+#include <fmt/format.h>
 #include <glm/gtx/string_cast.hpp>
-#include <spdlog/fmt/bundled/format.h>
 #include <spdlog/spdlog.h>
 #include <string>
 

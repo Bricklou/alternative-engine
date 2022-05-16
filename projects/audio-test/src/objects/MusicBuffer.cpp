@@ -5,7 +5,6 @@
 #include <stdexcept>
 #include <stdint.h>
 #include <stdio.h>
-#include <vcruntime.h>
 
 void MusicBuffer::play() {
   ALsizei i;
