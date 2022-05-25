@@ -1,8 +1,8 @@
 #pragma once
 
-#include "assetslib/assets/AudioFile.hpp"
 #include <alte/audio/SoundStream.hpp>
 #include <alte/export.hpp>
+#include <alte/files/AudioFile.hpp>
 #include <cstdint>
 #include <filesystem>
 #include <mutex>
@@ -124,7 +124,7 @@ namespace AltE {
        */
       Time samples_to_time(uint64_t samples) const;
 
-      assetslib::AudioInfo _file;
+      AudioInfo _file;
       std::vector<char> _samples;
       uint64_t _current_offset;
       std::recursive_mutex _mutex;

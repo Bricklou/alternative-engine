@@ -30,22 +30,28 @@ void run() {
   AltE::AudioComponent audio{};
   AltE::Music music{};
 
-  if (!music.open_from_file("assets/audio/audio.alte-asset")) {
+  if (!music.open_from_file("assets/audio/Perk Pietrek & Abstrakt - Pressure "
+                            "[NCS Release]_mono.wav")) {
     throw std::runtime_error("Failed to open audio file");
   }
 
   audio.set_source(music);
-  transform.set_position({1, 2, 3});
+  transform.set_position({0, 0, 0});
   audio.play();
 
   SPDLOG_INFO("Player position: {}", transform.get_position());
 
-  int val = 0;
+  uint32_t i = 0;
+  float x = 0, y = 0;
   while (audio.get_status() == AltE::Music::Playing) {
-    val = (val + 1) % 360;
-    int volume = std::abs(std::sin((360 - val) * M_PI / 180)) * 100;
-    SPDLOG_INFO("Volume: {}", volume);
-    audio.set_volume(volume);
+    i = (i + 1) % 360;
+
+    x = std::cos((360 - i) * M_PI / 180) * 20;
+    y = std::sin((360 - i) * M_PI / 180) * 20;
+
+    music.set_position({x, y, 0});
+
+    SPDLOG_INFO("Position: {}", music.get_position());
     AltE::sleep(AltE::milliseconds(20));
   }
 }

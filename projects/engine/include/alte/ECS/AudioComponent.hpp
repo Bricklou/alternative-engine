@@ -1,15 +1,15 @@
 #pragma once
+#include <alte/audio/SoundStream.hpp>
 #include <alte/export.hpp>
-#include <array>
-#include <assetslib/assetslib.hpp>
+#include <alte/files/AudioFile.hpp>
 
+
+#include <array>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include <alte/audio/SoundStream.hpp>
 
 namespace AltE {
 
@@ -85,7 +85,7 @@ namespace AltE {
       const SoundStream &get_source() const;
 
     private:
-      assetslib::AudioInfo _audio_info;
+      AudioInfo _audio_info;
       std::unique_ptr<SoundStream> _stream;
   };
 } // namespace AltE

@@ -1,7 +1,6 @@
 add_requires("glm", "entt", "fmt")
 add_requires("spdlog", { system = false })
-add_requires("assetslib")
-add_requires("openal-soft", { configs = { shared = true } })
+add_requires("libsndfile", "openal-soft", "stb", { configs = { shared = true } })
 
 target("engine")
     set_kind("shared")
@@ -15,7 +14,8 @@ target("engine")
         "glm",
         "entt",
         "fmt",
-        "assetslib",
+        "libsndfile",
+        "stb",
     { public = true })
 
     add_packages(

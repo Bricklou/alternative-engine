@@ -1,7 +1,6 @@
 #pragma once
 
-#include "alte/export.hpp"
-#include "entt/entity/fwd.hpp"
+#include <alte/export.hpp>
 #include <entt/entt.hpp>
 #include <stdint.h>
 #include <vector>

@@ -1,13 +1,11 @@
 #include <alte/audio/Music.hpp>
 #include <alte/types/time.hpp>
-#include <assetslib/assetslib.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <mutex>
 #include <vector>
-
 
 namespace AltE {
 
@@ -23,8 +21,7 @@ namespace AltE {
     stop();
 
     // Open the underlying sound file
-    auto asset = assetslib::AssetFile::load_binary_file(filename.string());
-    _file = assetslib::AudioInfo::read_from_asset(asset);
+    _file = AudioInfo::read_from_file(filename);
 
     // Perform common initializations
     initialize();
