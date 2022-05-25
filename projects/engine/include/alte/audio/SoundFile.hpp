@@ -13,7 +13,7 @@ namespace AltE {
   class Time;
   class InputStream;
 
-  class ALTE_API Music : public SoundStream {
+  class ALTE_API SoundFile : public SoundStream {
     public:
       /**
        * @brief Structure defining a time range using the template type
@@ -42,12 +42,12 @@ namespace AltE {
       /**
        * @brief Default constructor
        */
-      Music();
+      SoundFile();
 
       /**
        * @brief Destructor
        */
-      ~Music() override;
+      ~SoundFile() override;
 
       /**
        * @brief Open a music from an asset file

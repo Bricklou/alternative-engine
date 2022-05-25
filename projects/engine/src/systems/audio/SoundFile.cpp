@@ -1,4 +1,4 @@
-#include <alte/audio/Music.hpp>
+#include <alte/audio/SoundFile.hpp>
 #include <alte/types/time.hpp>
 #include <cstddef>
 #include <cstdint>
@@ -9,14 +9,14 @@
 
 namespace AltE {
 
-  Music::Music() : _file(), _loop_span(0, 0) {}
+  SoundFile::SoundFile() : _file(), _loop_span(0, 0) {}
 
-  Music::~Music() {
+  SoundFile::~SoundFile() {
     // e must stop before destroying the file
     stop();
   }
 
-  bool Music::open_from_file(const std::filesystem::path &filename) {
+  bool SoundFile::open_from_file(const std::filesystem::path &filename) {
     // First stop the music if it was already running
     stop();
 
@@ -29,7 +29,7 @@ namespace AltE {
     return true;
   }
 
-  Time Music::get_duration() const {
+  Time SoundFile::get_duration() const {
     // Make sure we don't divide by zero
     if (_file.channels == 0 || _file.sample_rate == 0)
       return Time::Zero;
@@ -39,7 +39,7 @@ namespace AltE {
                    static_cast<float>(_file.sample_rate));
   }
 
-  bool Music::on_get_data(SoundStream::Chunk &data) {
+  bool SoundFile::on_get_data(SoundStream::Chunk &data) {
     std::scoped_lock lock(_mutex);
 
     std::size_t to_fill = _samples.size();
@@ -66,7 +66,7 @@ namespace AltE {
            !(_current_offset == loop_end && _loop_span.length != 0);
   }
 
-  void Music::on_seek(Time time_offset) {
+  void SoundFile::on_seek(Time time_offset) {
     std::scoped_lock lock(_mutex);
 
     // Convert the time offset to a sample offset
@@ -74,7 +74,7 @@ namespace AltE {
     //_file.seek(time_offset);
   }
 
-  uint64_t Music::on_loop() {
+  uint64_t SoundFile::on_loop() {
     // Called by underlying SoundStream so we can determine where to loop
     std::scoped_lock lock(_mutex);
     uint64_t current_offset = _current_offset;
@@ -92,7 +92,7 @@ namespace AltE {
     return NoLoop;
   }
 
-  void Music::initialize() {
+  void SoundFile::initialize() {
     // Compute the music position
     _loop_span.offset = 0;
     _loop_span.length = _file.audio_data.size();
@@ -106,7 +106,7 @@ namespace AltE {
     SoundStream::initialize(_file.channels, _file.sample_rate);
   }
 
-  uint64_t Music::time_to_samples(Time position) const {
+  uint64_t SoundFile::time_to_samples(Time position) const {
     // Always ROUND, no unchecked truncation, hence the addition in the
     // numerator. This avoids most precision errors arising from "samples =>
     // Time => samples" conversions Original rounding calculation is ((Micros *
@@ -118,7 +118,7 @@ namespace AltE {
            1000000;
   }
 
-  Time Music::samples_to_time(uint64_t samples) const {
+  Time SoundFile::samples_to_time(uint64_t samples) const {
     Time position = Time::Zero;
 
     // Make sure we don't divide by 0

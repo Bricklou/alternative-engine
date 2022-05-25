@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 
+#include "alte/audio/SoundFile.hpp"
 #include "alte/audio/SoundStream.hpp"
 #include "alte/types/time.hpp"
 #include "alte/types/time.inl"
@@ -28,7 +29,7 @@ void run() {
   // auto &audio = player.add_component<AltE::AudioComponent>();
 
   AltE::AudioComponent audio{};
-  AltE::Music music{};
+  AltE::SoundFile music{};
 
   if (!music.open_from_file("assets/audio/Perk Pietrek & Abstrakt - Pressure "
                             "[NCS Release]_mono.wav")) {
@@ -43,7 +44,7 @@ void run() {
 
   uint32_t i = 0;
   float x = 0, y = 0;
-  while (audio.get_status() == AltE::Music::Playing) {
+  while (audio.get_status() == AltE::SoundFile::Playing) {
     i = (i + 1) % 360;
 
     x = std::cos((360 - i) * M_PI / 180) * 20;
