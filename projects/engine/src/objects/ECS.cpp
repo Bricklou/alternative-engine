@@ -1,4 +1,3 @@
-#include "glm/fwd.hpp"
 #include <alte/objects/ECS.hpp>
 
 #include <alte/objects/GameObject.hpp>

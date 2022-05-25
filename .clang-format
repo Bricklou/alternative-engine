@@ -98,7 +98,7 @@ IndentAccessModifiers: true
 IndentCaseLabels: true
 IndentCaseBlocks: true
 IndentGotoLabels: true
-IndentPPDirectives: None
+IndentPPDirectives: BeforeHash
 IndentExternBlock: AfterExternBlock
 IndentRequires:  false
 IndentWidth:     2

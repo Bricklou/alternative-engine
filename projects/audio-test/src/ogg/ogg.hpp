@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AL/al.h"
+#include <AL/al.h>
 #include <fstream>
 #include <string>
 #include <vector>

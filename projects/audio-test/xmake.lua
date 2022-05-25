@@ -1,4 +1,5 @@
-add_requires("openal-soft", "libogg", "libvorbis")
+add_requires("libogg", "libvorbis")
+add_requires("openal-soft", { configs = { shared = true } })
 
 target("audio-test")
     set_kind("binary")

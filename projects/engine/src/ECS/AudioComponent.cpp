@@ -1,32 +1,57 @@
+#include "glm/fwd.hpp"
 #include <alte/ECS/AudioComponent.hpp>
 
 namespace AltE {
+  AudioComponent::AudioComponent() {}
 
-  AudioComponent::AudioComponent(std::string filePath, bool loop)
-      : filePath(filePath), loop(loop) {}
-
-  AudioComponent::AudioComponent() : filePath(""), loop(false) {}
-
-  bool AudioComponent::operator==(const AudioComponent &other) const {
-    return filePath == other.filePath && loop == other.loop;
+  AudioComponent &AudioComponent::operator=(AudioComponent &&other) {
+    if (this != &other) {
+      _audio_info = std::move(other._audio_info);
+      _stream = std::move(other._stream);
+    }
+    return *this;
   }
 
-  bool AudioComponent::operator!=(const AudioComponent &other) const {
-    return !(*this == other);
+  AudioComponent::AudioComponent(AudioComponent &&other)
+      : _audio_info(std::move(other._audio_info)),
+        _stream(std::move(other._stream)) {}
+
+  AudioComponent::~AudioComponent() {
+    if (_stream) {
+      _stream->stop();
+      _stream.reset();
+    }
   }
 
-  void AudioComponent::play() {}
-  void AudioComponent::stop() {}
-  void AudioComponent::pause() {}
+  SoundStream::Status AudioComponent::get_status() const {
+    return _stream->get_status();
+  }
 
-  bool AudioComponent::isPlaying() const { return false; }
+  void AudioComponent::play() { _stream->play(); }
 
-  bool AudioComponent::isLooping() const { return loop; }
-  void AudioComponent::setLooping(bool loop) { this->loop = loop; }
+  void AudioComponent::pause() { _stream->pause(); }
 
-  void AudioComponent::setVolume(float volume) {}
-  float AudioComponent::getVolume() const { return 0.0f; }
+  void AudioComponent::stop() { _stream->stop(); }
 
-  void AudioComponent::setPitch(float pitch) {}
-  float AudioComponent::getPitch() const { return 0.0f; }
+  void AudioComponent::set_volume(float volume) { _stream->set_volume(volume); }
+
+  float AudioComponent::get_volume() const { return _stream->get_volume(); }
+
+  void AudioComponent::set_position(const glm::vec3 &position) {
+    _stream->set_position(position);
+  }
+
+  glm::vec3 AudioComponent::get_position() const {
+    return _stream->get_position();
+  }
+
+  void AudioComponent::set_loop(bool loop) { _stream->set_loop(loop); }
+
+  bool AudioComponent::get_loop() const { return _stream->get_loop(); }
+
+  void AudioComponent::set_source(SoundStream &source) {
+    _stream.reset(std::move(&source));
+  }
+
+  const SoundStream &AudioComponent::get_source() const { return *_stream; }
 } // namespace AltE

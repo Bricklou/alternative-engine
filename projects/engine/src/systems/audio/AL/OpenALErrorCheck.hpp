@@ -2,21 +2,43 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <stdexcept>
-#include <string>
+#include <alte/export.hpp>
+#include <filesystem>
+#include <stdint.h>
 
-static void ALC_check_and_throw(ALCdevice *device) {
-  if (alcGetError(device) != AL_NO_ERROR) {
-    std::string error = "error with alcdevice: ";
-    error += alcGetString(device, alcGetError(device));
-    throw std::runtime_error(error);
-  }
-}
+namespace AltE {
 
-static void AL_check_and_throw() {
-  if (alGetError() != AL_NO_ERROR) {
-    std::string error = "error with al: ";
-    error += alGetString(alGetError());
-    throw std::runtime_error(error);
-  }
-}
+#ifndef NDEBUG
+  #define al_check(expr)                                                       \
+    {                                                                          \
+      expr;                                                                    \
+      AltE::al_check_error(__FILE__, __LINE__, #expr);                         \
+    }
+
+  #define al_get_last_error al_get_last_error_impl
+#else
+
+  // Else, we don't add any overhead
+  #define al_check(expr) (expr)
+  #define al_get_last_error alGetError
+
+#endif
+
+  /**
+   * @brief Check the last OpenAL error
+   *
+   * @param file Source file where the call is located
+   * @param line Line number where the call is located
+   * @param expression The evaluated expression as a string
+   */
+  void ALTE_API al_check_error(const std::filesystem::path &file, uint32_t line,
+                               const char *expression);
+
+  /**
+   * @brief Get the last OpenAL error on this thread
+   *
+   * @return The last OpenAL error on this thread
+   */
+  ALenum ALTE_API al_get_last_error_impl();
+
+} // namespace AltE

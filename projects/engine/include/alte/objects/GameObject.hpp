@@ -1,8 +1,8 @@
 #pragma once
 
-#include "alte/export.hpp"
-#include "entt/entity/entity.hpp"
+#include <alte/export.hpp>
 #include <alte/objects/ECS.hpp>
+#include <entt/entity/entity.hpp>
 #include <entt/entt.hpp>
 
 namespace AltE {

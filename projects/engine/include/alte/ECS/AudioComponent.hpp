@@ -1,34 +1,91 @@
 #pragma once
+#include <alte/export.hpp>
+#include <array>
+#include <assetslib/assetslib.hpp>
 
+#include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
+#include <vector>
+
+#include <alte/audio/SoundStream.hpp>
 
 namespace AltE {
 
-  struct AudioComponent {
-      std::string filePath;
-      bool loop;
-
-      AudioComponent(std::string filePath, bool loop);
+  struct ALTE_API AudioComponent {
       AudioComponent();
-      AudioComponent(const AudioComponent &other) = default;
+      AudioComponent(AudioComponent &&other);
+      ~AudioComponent();
 
-      bool operator==(const AudioComponent &other) const;
+      AudioComponent &operator=(AudioComponent &&other);
 
-      bool operator!=(const AudioComponent &other) const;
+      /**
+       * @brief Proxy SoundStream::get_status()
+       */
+      SoundStream::Status get_status() const;
 
+      /**
+       * @brief Proxy SoundStream::play()
+       */
       void play();
-      void stop();
+
+      /**
+       * @brief Proxy SoundStream::pause()
+       */
       void pause();
 
-      bool isPlaying() const;
+      /**
+       * @brief Proxy SoundStream::stop()
+       */
+      void stop();
 
-      bool isLooping() const;
-      void setLooping(bool loop);
+      /**
+       * @brief Proxy SoundStream::set_volume()
+       */
+      void set_volume(float volume);
 
-      void setVolume(float volume);
-      float getVolume() const;
+      /**
+       * @brief Proxy SoundStream::get_volume()
+       */
+      float get_volume() const;
 
-      void setPitch(float pitch);
-      float getPitch() const;
+      /**
+       * @brief Proxy SoundStream::set_position()
+       */
+      void set_position(const glm::vec3 &position);
+
+      /**
+       * @brief Proxy SoundStream::get_position()
+       */
+      glm::vec3 get_position() const;
+
+      /**
+       * @brief Proxy SoundStream::set_loop()
+       */
+      void set_loop(bool loop);
+
+      /**
+       * @brief Proxy SoundStream::get_loop()
+       */
+      bool get_loop() const;
+
+      /**
+       * @brief Set the sound stream source
+       *
+       * @param source The new source
+       */
+      void set_source(SoundStream &source);
+
+      /**
+       * @brief Get the sound stream source
+       *
+       * @return The source
+       */
+      const SoundStream &get_source() const;
+
+    private:
+      assetslib::AudioInfo _audio_info;
+      std::unique_ptr<SoundStream> _stream;
   };
 } // namespace AltE

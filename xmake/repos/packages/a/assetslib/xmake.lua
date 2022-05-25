@@ -3,8 +3,11 @@ package("assetslib")
     set_license("GPL-3.0")
 
     add_urls("https://github.com/bricklou/assetslib.git")
+    add_versions("v1.0.2", "24d978dfeea890219933cd705e04be9d58b597e0")
     add_versions("v1.0.1", "61d142c55ba067706b31565d79dfc183308f86f4")
     add_versions("v1.0.0", "a2c5682c1edf701f136ca05e9d477237e8ab658d")
+
+    add_includedirs("include")
 
     on_install(function (package)
         local configs = {}

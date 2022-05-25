@@ -1,154 +1,158 @@
 #include "AudioDevice.hpp"
+
 #include "AL/al.h"
 #include "AL/al.hpp"
 #include "AL/alc.h"
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <vector>
+#include "spdlog/spdlog.h"
+#include <glm/glm.hpp>
+#include <optional>
+
+namespace {
+  ALCdevice *audio_device = nullptr;
+  ALCcontext *audio_context = nullptr;
+
+  float listener_volume = 100.0f;
+  glm::vec3 listener_position{0.0f, 0.0f, 0.0f};
+  glm::vec3 listener_direction{0.0f, 0.0f, -1.0f};
+  glm::vec3 listener_up_vector{0.0f, 1.0f, 0.0f};
+} // namespace
 
 namespace AltE {
-  AudioDevice *AudioDevice::instance() {
-    static AudioDevice *device = new AudioDevice();
-    return device;
-  }
+  AudioDevice::AudioDevice() {
+    // Create the device
+    audio_device = alcOpenDevice(nullptr);
 
-  AudioDevice::AudioDevice() {}
+    if (audio_device) {
+      // Create the context
+      audio_context = alcCreateContext(audio_device, nullptr);
 
-  AudioDevice::~AudioDevice() { this->destroy_context(); }
+      if (audio_context) {
+        // Set the context as the current one (we'll only need one)
+        alcMakeContextCurrent(audio_context);
 
-  std::vector<std::string> AudioDevice::get_device_list() const {
-    std::vector<std::string> device_list;
-
-    ALboolean enumeration;
-    enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
-    if (enumeration == AL_FALSE) {
-      throw std::runtime_error("Device enumeration extension not supported");
-    }
-
-    const ALCchar *devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
-    if (devices == nullptr) {
-      throw std::runtime_error("No devices available");
-    }
-
-    return device_list;
-  }
-
-  void AudioDevice::set_device(const std::string &device_name) {
-    ALCcontext *old_ctx = this->_context;
-    this->set_current_context(nullptr);
-
-    this->destroy_device();
-    this->create_device(device_name.c_str());
-
-    ALCcontext *new_ctx = this->create_context(this->_device);
-    this->set_current_context(new_ctx);
-
-    this->destroy_context(old_ctx);
-  }
-
-  glm::vec3 AudioDevice::get_location() const {
-    glm::vec3 location{};
-    alGetListener3f(AL_POSITION, &location.x, &location.y, &location.z);
-
-    AL_check_and_throw();
-
-    return location;
-  }
-
-  void AudioDevice::set_location(const glm::vec3 &location) {
-    alListener3f(AL_POSITION, location.x, location.y, location.z);
-    AL_check_and_throw();
-  }
-
-  float AudioDevice::get_orientation() const {
-    float ori;
-    alGetListenerfv(AL_ORIENTATION, &ori);
-
-    AL_check_and_throw();
-    return ori;
-  }
-
-  void AudioDevice::set_orientation(const glm::vec3 &at, const glm::vec3 &up) {
-    std::vector<float> ori;
-    ori.push_back(at.x);
-    ori.push_back(at.y);
-    ori.push_back(at.z);
-    ori.push_back(up.x);
-    ori.push_back(up.y);
-    ori.push_back(up.z);
-
-    alGetListenerfv(AL_ORIENTATION, ori.data());
-
-    AL_check_and_throw();
-  }
-
-  float AudioDevice::get_gain() const {
-    float curr_gain;
-    alGetListenerf(AL_GAIN, &curr_gain);
-    AL_check_and_throw();
-    return curr_gain;
-  }
-
-  void AudioDevice::set_gain(const float &gain) {
-    // clamp between 0 and 5
-    float gain_clamped = std::max(0.0f, std::min(gain, 5.0f));
-    alListenerf(AL_GAIN, gain_clamped);
-    AL_check_and_throw();
-  }
-
-  ALCcontext *AudioDevice::create_context(ALCdevice *device) {
-    ALCcontext *ctx = alcCreateContext(device, nullptr);
-    if (ctx == nullptr) {
-      throw std::runtime_error("Failed to create context");
-    }
-
-    AL_check_and_throw();
-    return ctx;
-  }
-
-  void AudioDevice::set_current_context(ALCcontext *context) {
-    alcMakeContextCurrent(context);
-    AL_check_and_throw();
-    this->_context = context;
-  }
-
-  void AudioDevice::destroy_context(ALCcontext *context) {
-    alcDestroyContext(_context);
-    AL_check_and_throw();
-  }
-
-  void AudioDevice::destroy_context() {
-    if (_context != nullptr) {
-      this->set_current_context(nullptr);
-      this->destroy_context(_context);
-      AL_check_and_throw();
+        // Apply the listener properties the user might have set
+        float orientation[] = {listener_direction.x, listener_direction.y,
+                               listener_direction.z, listener_up_vector.x,
+                               listener_up_vector.y, listener_up_vector.z};
+        al_check(alListenerf(AL_GAIN, listener_volume * 0.01f));
+        al_check(alListener3f(AL_POSITION, listener_position.x,
+                              listener_position.y, listener_position.z));
+        al_check(alListenerfv(AL_ORIENTATION, orientation));
+      } else {
+        SPDLOG_ERROR("Failed to create the audio context.");
+      }
+    } else {
+      SPDLOG_ERROR("Failed to create the audio device.");
     }
   }
 
-  void AudioDevice::create_device(const char *device) {
-    _device = alcOpenDevice(device);
-    if (_device == nullptr) {
-      throw std::runtime_error("Failed to open device");
-    }
+  AudioDevice::~AudioDevice() {
+    // Destroy the context
+    alcMakeContextCurrent(nullptr);
+    if (audio_context)
+      alcDestroyContext(audio_context);
 
-    AL_check_and_throw();
+    // Destroy the device
+    if (audio_device)
+      alcCloseDevice(audio_device);
   }
 
-  void AudioDevice::destroy_device() {
-    bool ret = alcCloseDevice(_device);
-    if (ret == AL_FALSE) {
-      throw std::runtime_error("Failed to close device");
-    }
-    AL_check_and_throw();
+  bool AudioDevice::is_extension_supported(const std::string &extension) {
+    // Create a temporaty audio device in case none exists yet.
+    // This device will not be used in this function and merely makes sure there
+    // is a valid OpenAL device for extension queries if none has been created
+    // yet.
+    std::optional<AudioDevice> device;
+    if (!audio_device)
+      device.emplace();
+
+    if ((extension.length() > 2) && (extension.substr(0, 3) == "ALC"))
+      return alcIsExtensionPresent(audio_device, extension.c_str()) != AL_FALSE;
+    else
+      return alIsExtensionPresent(extension.c_str()) != AL_FALSE;
   }
 
-  void AudioDevice::set_attenuation(int key) {
-    if (key < 0xD001 || key > 0xD008) {
-      throw std::runtime_error("bad attunation key");
+  int AudioDevice::get_format_from_channel_count(uint32_t channel_count) {
+    // Create a temporary audio device in case none exists yet. This device will
+    // not be used in this function and merely makes sure there is a valid
+    // OpenAL device form format queries if none has been created yet.
+    std::optional<AudioDevice> device;
+    if (!audio_device)
+      device.emplace();
+
+    // Find the good format according to the number of channels
+    int format = 0;
+    switch (channel_count) {
+      case 1:
+        format = AL_FORMAT_MONO16;
+        break;
+      case 2:
+        format = AL_FORMAT_STEREO16;
+        break;
+      case 4:
+        format = alGetEnumValue("AL_FORMAT_QUAD16");
+        break;
+      case 6:
+        format = alGetEnumValue("AL_FORMAT_51CHN16");
+        break;
+      case 7:
+        format = alGetEnumValue("AL_FORMAT_61CHN16");
+        break;
+      case 8:
+        format = alGetEnumValue("AL_FORMAT_71CHN16");
+        break;
+      default:
+        format = 0;
     }
-    alDistanceModel(key);
-    AL_check_and_throw();
+
+    // Fixes a bug on OS X
+    if (format == -1)
+      format = 0;
+
+    return format;
   }
+
+  void AudioDevice::set_volume(float volume) {
+    if (audio_context)
+      al_check(alListenerf(AL_GAIN, volume * 0.01f));
+
+    listener_volume = volume;
+  }
+
+  float AudioDevice::get_volume() { return listener_volume; }
+
+  void AudioDevice::set_position(const glm::vec3 &position) {
+    if (audio_context)
+      al_check(alListener3f(AL_POSITION, position.x, position.y, position.z));
+
+    listener_position = position;
+  }
+
+  glm::vec3 AudioDevice::get_position() { return listener_position; }
+
+  void AudioDevice::set_direction(const glm::vec3 &direction) {
+    if (audio_context) {
+      float orientation[] = {direction.x,          direction.y,
+                             direction.z,          listener_up_vector.x,
+                             listener_up_vector.y, listener_up_vector.z};
+      al_check(alListenerfv(AL_ORIENTATION, orientation));
+    }
+
+    listener_direction = direction;
+  }
+
+  glm::vec3 AudioDevice::get_direction() { return listener_direction; }
+
+  void AudioDevice::set_up_vector(const glm::vec3 &up_vector) {
+    if (audio_context) {
+      float orientation[] = {listener_direction.x, listener_direction.y,
+                             listener_direction.z, up_vector.x,
+                             up_vector.y,          up_vector.z};
+      al_check(alListenerfv(AL_ORIENTATION, orientation));
+    }
+
+    listener_up_vector = up_vector;
+  }
+
+  glm::vec3 AudioDevice::get_up_vector() { return listener_up_vector; }
 } // namespace AltE

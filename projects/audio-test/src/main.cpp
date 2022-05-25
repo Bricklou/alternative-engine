@@ -1,6 +1,3 @@
-
-#include "AL/al.h"
-#include "AL/al.hpp"
 #include "objects/MusicBuffer.hpp"
 #include "objects/SoundDevice.hpp"
 #include <chrono>
