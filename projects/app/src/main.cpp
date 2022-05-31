@@ -12,7 +12,7 @@
 #include <alte/ECS/AudioComponent.hpp>
 #include <alte/ECS/AudioListenerComponent.hpp>
 #include <alte/ECS/TransformComponent.hpp>
-#include <alte/audio/Music.hpp>
+#include <alte/audio/SoundFile.hpp>
 #include <alte/objects/ECS.hpp>
 #include <alte/objects/GameObject.hpp>
 #include <alte/types/sleep.hpp>
@@ -26,9 +26,8 @@ void run() {
 
   auto &transform = player.add_component<AltE::TransformComponent>();
   auto &listener = player.add_component<AltE::AudioListenerComponent>();
-  // auto &audio = player.add_component<AltE::AudioComponent>();
+  auto &audio = player.add_component<AltE::AudioComponent>();
 
-  AltE::AudioComponent audio{};
   AltE::SoundFile music{};
 
   if (!music.open_from_file("assets/audio/Perk Pietrek & Abstrakt - Pressure "

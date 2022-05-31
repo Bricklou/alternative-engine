@@ -42,4 +42,28 @@ namespace AltE {
   }
 
   AudioListenerComponent::~AudioListenerComponent() {}
+
+  void AudioListenerComponent::set_volume(float volume) {
+    _device->set_volume(volume);
+  }
+
+  float AudioListenerComponent::get_volume() const {
+    return _device->get_volume();
+  }
+
+  void AudioListenerComponent::set_position(const glm::vec3 &position) {
+    _device->set_position(position);
+  }
+
+  glm::vec3 AudioListenerComponent::get_position() const {
+    return _device->get_position();
+  }
+
+  void AudioListenerComponent::set_direction(const glm::vec3 &direction) {
+    _device->set_direction(direction);
+  }
+
+  glm::vec3 AudioListenerComponent::get_direction() const {
+    return _device->get_direction();
+  }
 } // namespace AltE
